@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import CreativeColorful from './CreativeColorful';
+import CreativeColorful from './Templates/CreativeColorful';
 import MinimalistTemplate from './Templates/MinimalistTemplate';
 import ModernMinimal from './Templates/ModernMinimal';
 import ProfessionalClassic from './Templates/ProfessionalClassic';
+import ATSScanner from './ATSScanner';
 
 const ResumeBuilder = () => {
   const location = useLocation();
@@ -48,7 +49,7 @@ const ResumeBuilder = () => {
       }
     ],
     skills: [
-      { id: 1, name: '', level: 'Intermediate' }
+      { id: 1, name: '' }
     ],
     languages: [
       { id: 1, name: '', level: 'Intermediate' }
@@ -58,6 +59,15 @@ const ResumeBuilder = () => {
     ],
     projects: [
       { id: 1, name: '', description: '', link: '', technologies: [''] }
+    ],
+    declaration: {
+      text: '',
+      place: '',
+      date: '',
+      signature: ''
+    },
+    others: [
+      { id: 1, title: '', description: '' }
     ]
   });
   
@@ -67,6 +77,8 @@ const ResumeBuilder = () => {
   const [isGenerating, setIsGenerating] = useState(false);
   const [showPreview, setShowPreview] = useState(false);
   const [expandedSection, setExpandedSection] = useState(null);
+  const [showATSScanner, setShowATSScanner] = useState(false);
+  const [isPersonalInfoExpanded, setIsPersonalInfoExpanded] = useState(true);
   
   // Sections for navigation
   const sections = [
@@ -76,7 +88,9 @@ const ResumeBuilder = () => {
     { id: 'skills', name: 'Skills', icon: 'chip' },
     { id: 'languages', name: 'Languages', icon: 'globe-alt' },
     { id: 'certifications', name: 'Certifications', icon: 'badge-check' },
-    { id: 'projects', name: 'Projects', icon: 'code' }
+    { id: 'projects', name: 'Projects', icon: 'code' },
+    { id: 'declaration', name: 'Declaration', icon: 'document-text' },
+    { id: 'others', name: 'Other Details', icon: 'dots-horizontal' }
   ];
 
   useEffect(() => {
@@ -85,6 +99,8 @@ const ResumeBuilder = () => {
     
     if (location.state && location.state.template) {
       setSelectedTemplate(location.state.template);
+      // Set Personal Info as the active section by default
+      setActiveSection('personalInfo');
     } else {
       // If no template is selected, redirect back to template selection
       navigate('/templates');
@@ -149,7 +165,7 @@ const ResumeBuilder = () => {
           };
           break;
         case 'skills':
-          newItem = { ...newItem, name: '', level: 'Intermediate' };
+          newItem = { ...newItem, name: '' };
           break;
         case 'languages':
           newItem = { ...newItem, name: '', level: 'Intermediate' };
@@ -159,6 +175,12 @@ const ResumeBuilder = () => {
           break;
         case 'projects':
           newItem = { ...newItem, name: '', description: '', link: '', technologies: [''] };
+          break;
+        case 'declaration':
+          newItem = { ...newItem, text: '', place: '', date: '', signature: '' };
+          break;
+        case 'others':
+          newItem = { ...newItem, title: '', description: '' };
           break;
         default:
           break;
@@ -380,45 +402,32 @@ const ResumeBuilder = () => {
           <div className="p-4 space-y-4">
             {formData.skills.map((skill, index) => (
               <div key={skill.id} className="p-4 border border-gray-200 rounded-lg space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
+                <div className="flex items-center gap-4">
+                  <div className="flex-1">
                     <label className="block text-sm font-medium text-gray-700 mb-1">Skill</label>
                     <input
                       type="text"
                       className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
                       value={skill.name}
                       onChange={(e) => handleInputChange('skills', 'name', e.target.value, index)}
-                      placeholder="e.g., JavaScript"
+                      placeholder="e.g., JavaScript, Python, Project Management"
                     />
                   </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Level</label>
-                    <select
-                      className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                      value={skill.level}
-                      onChange={(e) => handleInputChange('skills', 'level', e.target.value, index)}
-                    >
-                      <option value="Beginner">Beginner</option>
-                      <option value="Intermediate">Intermediate</option>
-                      <option value="Advanced">Advanced</option>
-                      <option value="Expert">Expert</option>
-                    </select>
-                  </div>
+                  <button
+                    onClick={() => handleRemoveItem('skills', skill.id)}
+                    className="text-red-500 hover:text-red-700 text-sm flex items-center gap-1 self-end mb-1"
+                  >
+                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                    </svg>
+                    Remove
+                  </button>
                 </div>
-                <button
-                  onClick={() => handleRemoveItem('skills', skill.id)}
-                  className="text-red-500 hover:text-red-700 text-sm flex items-center gap-1"
-                >
-                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                  </svg>
-                  Remove
-                </button>
               </div>
             ))}
             <button
               onClick={() => handleAddItem('skills')}
-              className="w-full py-2 px-4 border border-blue-500 text-blue-500 rounded-lg hover:bg-blue-50"
+              className="w-full py-2 px-4 border border-blue-500 text-blue-500 rounded-lg hover:bg-blue-50 transition-colors duration-200"
             >
               + Add Skill
             </button>
@@ -488,6 +497,100 @@ const ResumeBuilder = () => {
               className="w-full py-2 px-4 border border-blue-500 text-blue-500 rounded-lg hover:bg-blue-50"
             >
               + Add Project
+            </button>
+          </div>
+        );
+
+      case 'Declaration':
+        return (
+          <div className="p-4 space-y-4">
+            <div className="p-4 border border-gray-200 rounded-lg space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Declaration Text</label>
+                <textarea
+                  className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                  value={formData.declaration.text}
+                  onChange={(e) => handleInputChange('declaration', 'text', e.target.value)}
+                  rows="4"
+                  placeholder="I hereby declare that all the information provided above is true to the best of my knowledge..."
+                />
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Place</label>
+                  <input
+                    type="text"
+                    className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                    value={formData.declaration.place}
+                    onChange={(e) => handleInputChange('declaration', 'place', e.target.value)}
+                    placeholder="City, Country"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Date</label>
+                  <input
+                    type="date"
+                    className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                    value={formData.declaration.date}
+                    onChange={(e) => handleInputChange('declaration', 'date', e.target.value)}
+                  />
+                </div>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Digital Signature</label>
+                <input
+                  type="text"
+                  className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                  value={formData.declaration.signature}
+                  onChange={(e) => handleInputChange('declaration', 'signature', e.target.value)}
+                  placeholder="Your Name"
+                />
+              </div>
+            </div>
+          </div>
+        );
+
+      case 'Others':
+        return (
+          <div className="p-4 space-y-4">
+            {formData.others.map((item, index) => (
+              <div key={item.id} className="p-4 border border-gray-200 rounded-lg space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Title</label>
+                  <input
+                    type="text"
+                    className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                    value={item.title}
+                    onChange={(e) => handleInputChange('others', 'title', e.target.value, index)}
+                    placeholder="e.g., Hobbies, Achievements, etc."
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
+                  <textarea
+                    className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                    value={item.description}
+                    onChange={(e) => handleInputChange('others', 'description', e.target.value, index)}
+                    rows="3"
+                    placeholder="Add details here..."
+                  />
+                </div>
+                <button
+                  onClick={() => handleRemoveItem('others', item.id)}
+                  className="text-red-500 hover:text-red-700 text-sm flex items-center gap-1"
+                >
+                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                  </svg>
+                  Remove
+                </button>
+              </div>
+            ))}
+            <button
+              onClick={() => handleAddItem('others')}
+              className="w-full py-2 px-4 border border-blue-500 text-blue-500 rounded-lg hover:bg-blue-50"
+            >
+              + Add Other Detail
             </button>
           </div>
         );
@@ -625,6 +728,10 @@ const ResumeBuilder = () => {
         return renderSectionContent('Skillsets');
       case 'projects':
         return renderSectionContent('Projects');
+      case 'declaration':
+        return renderSectionContent('Declaration');
+      case 'others':
+        return renderSectionContent('Others');
       // Add other sections as needed (languages, certifications, projects)
       default:
         return (
@@ -668,6 +775,36 @@ const ResumeBuilder = () => {
     );
   }
 
+  // Add this before the return statement
+  const renderATSScanner = () => {
+    if (!showATSScanner) return null;
+
+    const handleClose = () => {
+      setShowATSScanner(false);
+    };
+
+    return (
+      <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+        <div className="bg-white rounded-lg shadow-xl w-full max-w-4xl max-h-[90vh] overflow-y-auto">
+          <div className="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between">
+            <h2 className="text-xl font-semibold text-gray-800">ATS Resume Scanner</h2>
+            <button
+              onClick={handleClose}
+              className="text-gray-500 hover:text-gray-700"
+            >
+              <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
+          <div className="p-6">
+            <ATSScanner resumeData={formData} onClose={handleClose} />
+          </div>
+        </div>
+      </div>
+    );
+  };
+
   return (
     <div className="min-h-screen bg-white z-40 ">
       {/* Header */}
@@ -698,8 +835,11 @@ const ResumeBuilder = () => {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
               </svg>
             </button>
-            <button className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700">
-              Try AI Review
+            <button 
+              onClick={() => setShowATSScanner(true)}
+              className="px-4 py-2 text-sm font-medium text-white bg-purple-600 rounded-lg hover:bg-purple-700"
+            >
+              ATS Scanner
             </button>
             <button className="px-4 py-2 text-sm font-medium text-white bg-green-600 rounded-lg hover:bg-green-700 flex items-center gap-2">
               Download
@@ -733,107 +873,125 @@ const ResumeBuilder = () => {
           {/* Left Sidebar */}
           <div className="w-[400px]">
             {/* Personal Info Section */}
-            <div className="border border-gray-200 rounded-lg bg-white">
-              <div className="flex items-center gap-3 p-4">
-                <div className="p-2 bg-gray-100 rounded-lg">
+            <div className="border border-gray-200 rounded-lg bg-white overflow-hidden">
+              <div 
+                onClick={() => setIsPersonalInfoExpanded(!isPersonalInfoExpanded)}
+                className="flex items-center gap-3 p-4 cursor-pointer hover:bg-gray-50 transition-colors duration-200"
+              >
+                <div className="p-2 bg-gray-100 rounded-lg transform transition-transform duration-200 hover:scale-105">
                   <svg className="w-5 h-5 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                   </svg>
                 </div>
                 <span className="text-sm font-medium text-gray-900">Personal Info</span>
-                <svg className="w-5 h-5 text-gray-400 ml-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <svg 
+                  className={`w-5 h-5 text-gray-400 ml-auto transition-all duration-300 ease-in-out transform ${
+                    isPersonalInfoExpanded ? 'rotate-180' : ''
+                  }`} 
+                  fill="none" 
+                  viewBox="0 0 24 24" 
+                  stroke="currentColor"
+                >
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
                 </svg>
               </div>
               
               {/* Form Fields */}
-              <div className="p-4 border-t border-gray-200">
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm text-gray-700 mb-1">First Name</label>
-                    <input
-                      type="text"
-                      className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
-                      value={formData.personalInfo.firstName}
-                      onChange={(e) => handleInputChange('personalInfo', 'firstName', e.target.value)}
-                    />
+              <div 
+                className={`transition-all duration-300 ease-in-out transform origin-top ${
+                  isPersonalInfoExpanded 
+                    ? 'max-h-[1000px] opacity-100 scale-y-100 translate-y-0' 
+                    : 'max-h-0 opacity-0 scale-y-95 -translate-y-2'
+                }`}
+              >
+                <div className="p-4 border-t border-gray-200">
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm text-gray-700 mb-1">First Name</label>
+                      <input
+                        type="text"
+                        className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+                        value={formData.personalInfo.firstName}
+                        onChange={(e) => handleInputChange('personalInfo', 'firstName', e.target.value)}
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm text-gray-700 mb-1">Last Name</label>
+                      <input
+                        type="text"
+                        className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+                        value={formData.personalInfo.lastName}
+                        onChange={(e) => handleInputChange('personalInfo', 'lastName', e.target.value)}
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm text-gray-700 mb-1">Email</label>
+                      <input
+                        type="email"
+                        className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+                        value={formData.personalInfo.email}
+                        onChange={(e) => handleInputChange('personalInfo', 'email', e.target.value)}
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm text-gray-700 mb-1">Phone</label>
+                      <input
+                        type="tel"
+                        className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+                        value={formData.personalInfo.phone}
+                        onChange={(e) => handleInputChange('personalInfo', 'phone', e.target.value)}
+                      />
+                    </div>
+                    <div className="col-span-2">
+                      <label className="block text-sm text-gray-700 mb-1">Address</label>
+                      <input
+                        type="text"
+                        className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+                        value={formData.personalInfo.address}
+                        onChange={(e) => handleInputChange('personalInfo', 'address', e.target.value)}
+                      />
+                    </div>
+                    <div className="col-span-2">
+                      <label className="block text-sm text-gray-700 mb-1">Job Title</label>
+                      <input
+                        type="text"
+                        className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+                        value={formData.personalInfo.title}
+                        onChange={(e) => handleInputChange('personalInfo', 'title', e.target.value)}
+                      />
+                    </div>
                   </div>
-                  <div>
-                    <label className="block text-sm text-gray-700 mb-1">Last Name</label>
-                    <input
-                      type="text"
-                      className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
-                      value={formData.personalInfo.lastName}
-                      onChange={(e) => handleInputChange('personalInfo', 'lastName', e.target.value)}
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm text-gray-700 mb-1">Email</label>
-                    <input
-                      type="email"
-                      className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
-                      value={formData.personalInfo.email}
-                      onChange={(e) => handleInputChange('personalInfo', 'email', e.target.value)}
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm text-gray-700 mb-1">Phone</label>
-                    <input
-                      type="tel"
-                      className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
-                      value={formData.personalInfo.phone}
-                      onChange={(e) => handleInputChange('personalInfo', 'phone', e.target.value)}
-                    />
-                  </div>
-                  <div className="col-span-2">
-                    <label className="block text-sm text-gray-700 mb-1">Address</label>
-                    <input
-                      type="text"
-                      className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
-                      value={formData.personalInfo.address}
-                      onChange={(e) => handleInputChange('personalInfo', 'address', e.target.value)}
-                    />
-                  </div>
-                  <div className="col-span-2">
-                    <label className="block text-sm text-gray-700 mb-1">Job Title</label>
-                    <input
-                      type="text"
-                      className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
-                      value={formData.personalInfo.title}
-                      onChange={(e) => handleInputChange('personalInfo', 'title', e.target.value)}
-                    />
-                  </div>
-                </div>
 
-                {/* Links Section */}
-                <div className="mt-4">
-                  <label className="block text-sm text-gray-700 mb-1">Links (0/5)</label>
-                  <button className="w-full px-3 py-2 border border-gray-200 rounded-lg text-gray-500 hover:bg-gray-50 flex items-center justify-center gap-2">
-                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-                    </svg>
-                    Add Link
-                  </button>
+                  {/* Links Section */}
+                  <div className="mt-4">
+                    <label className="block text-sm text-gray-700 mb-1">Links (0/5)</label>
+                    <button className="w-full px-3 py-2 border border-gray-200 rounded-lg text-gray-500 hover:bg-gray-50 flex items-center justify-center gap-2">
+                      <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                      </svg>
+                      Add Link
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>
 
             {/* Other sections (Education, Experience, etc.) */}
-            {['Education', 'Experience', 'Skillsets', 'Projects'].map((section) => (
-              <div key={section} className="border border-gray-200 rounded-lg bg-white mt-4">
+            {['Education', 'Experience', 'Skillsets', 'Projects', 'Declaration', 'Others'].map((section) => (
+              <div key={section} className="border border-gray-200 rounded-lg bg-white mt-4 overflow-hidden transform transition-transform duration-200 hover:shadow-md">
                 <button 
                   onClick={() => setActiveSection(activeSection === section ? null : section)}
-                  className="w-full flex items-center gap-3 p-4 hover:bg-gray-50"
+                  className="w-full flex items-center gap-3 p-4 hover:bg-gray-50 transition-colors duration-200"
                 >
-                  <div className="p-2 bg-gray-100 rounded-lg">
+                  <div className="p-2 bg-gray-100 rounded-lg transform transition-transform duration-200 hover:scale-105">
                     <svg className="w-5 h-5 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
                     </svg>
                   </div>
                   <span className="text-sm font-medium text-gray-900">{section}</span>
                   <svg 
-                    className={`w-5 h-5 text-gray-400 ml-auto transition-transform ${
-                      activeSection === section ? 'rotate-90' : ''
+                    className={`w-5 h-5 text-gray-400 ml-auto transition-all duration-300 ease-in-out transform ${
+                      activeSection === section ? 'rotate-90 scale-110' : ''
                     }`} 
                     fill="none" 
                     viewBox="0 0 24 24" 
@@ -842,7 +1000,19 @@ const ResumeBuilder = () => {
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" />
                   </svg>
                 </button>
-                {activeSection === section && renderSectionContent(section)}
+                <div 
+                  className={`transition-all duration-300 ease-in-out transform origin-top ${
+                    activeSection === section 
+                      ? 'max-h-[2000px] opacity-100 scale-y-100 translate-y-0' 
+                      : 'max-h-0 opacity-0 scale-y-95 -translate-y-2'
+                  }`}
+                >
+                  {activeSection === section && (
+                    <div className="animate-fadeIn">
+                      {renderSectionContent(section)}
+                    </div>
+                  )}
+                </div>
               </div>
             ))}
           </div>
@@ -855,8 +1025,28 @@ const ResumeBuilder = () => {
           </div>
         </div>
       </div>
+
+      {/* Render the ATS Scanner component */}
+      {renderATSScanner()}
     </div>
   );
 };
 
 export default ResumeBuilder;
+
+<style jsx>{`
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(-10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  
+  .animate-fadeIn {
+    animation: fadeIn 0.3s ease-out forwards;
+  }
+`}</style>

@@ -1,9 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import MinimalistTemplate from './Templates/MinimalistTemplate';
-import ModernMinimal from './Templates/ModernMinimal';
-import ProfessionalClassic from './Templates/ProfessionalClassic';
-import CreativeColorful from './CreativeColorful';
+
 
 const TemplateSelection = () => {
   const navigate = useNavigate();
@@ -26,54 +23,38 @@ const TemplateSelection = () => {
         endDate: 'Present',
         description: 'Led development team...'
       }
-    ],
-    // ... other sample data
+    ]
   };
 
   const templates = [
     {
-      id: 1,
+      id: 'minimalist',
       name: 'Minimalist',
       type: 'minimalist',
-      component: MinimalistTemplate,
-      description: 'Clean and simple design'
+      description: 'Clean and simple design',
+      preview: '/templates/minimalist-preview.png'
     },
     {
-      id: 2,
+      id: 'modern-minimal',
       name: 'Modern Minimal',
       type: 'modern-minimal',
-      component: ModernMinimal,
-      description: 'Contemporary and professional'
+      description: 'Contemporary and professional',
+      preview: '/templates/modern-minimal-preview.png'
     },
+
     {
-      id: 3,
-      name: 'Professional Classic',
-      type: 'professional-classic',
-      component: ProfessionalClassic,
-      description: 'Traditional and elegant'
-    },
-    {
-      id: 4,
+      id: 'creative-colorful',
       name: 'Creative Colorful',
       type: 'creative-colorful',
-      component: CreativeColorful,
-      description: 'Bold and creative design'
+      description: 'Bold and creative design',
+      preview: '/templates/creative-colorful-preview.png'
     }
+ 
   ];
 
   const handleTemplateSelect = (template) => {
-    // Log to verify data
-    console.log('Selected template:', template);
-    
-    // Navigate with template data
     navigate('/resume-builder', {
-      state: {
-        template: {
-          id: template.id,
-          type: template.type,
-          name: template.name
-        }
-      }
+      state: { template }
     });
   };
 
@@ -89,29 +70,36 @@ const TemplateSelection = () => {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {templates.map((template) => (
             <div
               key={template.id}
               className="bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition-shadow duration-300"
             >
-              <div className="p-4 border-b border-gray-200">
+              <div className="p-4">
                 <h3 className="text-lg font-semibold text-gray-900">
                   {template.name}
                 </h3>
-                <p className="text-sm text-gray-500">{template.description}</p>
+                <p className="text-sm text-gray-500 mt-1">
+                  {template.description}
+                </p>
               </div>
 
-              <div className="p-4 bg-gray-50">
-                <div className="transform scale-[0.6] origin-top">
-                  <template.component data={{}} />
-                </div>
+              <div className="relative aspect-[4/5] bg-gray-100">
+                <img
+                  src={template.preview}
+                  alt={`${template.name} template preview`}
+                  className="w-full h-full object-cover"
+                  onError={(e) => {
+                    e.target.src = '/templates/placeholder-preview.png';
+                  }}
+                />
               </div>
 
-              <div className="p-4 bg-white">
+              <div className="p-4 bg-gray-50 border-t">
                 <button
                   onClick={() => handleTemplateSelect(template)}
-                  className="w-full bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition-colors duration-200"
+                  className="w-full py-2 px-4 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
                 >
                   Use This Template
                 </button>

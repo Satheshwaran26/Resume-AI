@@ -1,9 +1,9 @@
 import { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import CreativeColorful from './Templates/CreativeColorful';
-import MinimalistTemplate from './Templates/MinimalistTemplate';
-import ModernMinimal from './Templates/ModernMinimal';
-import ProfessionalClassic from './Templates/ProfessionalClassic';
+import CreativeColorful from '../Templates/CreativeColorful';
+import MinimalistTemplate from '../Templates/MinimalistTemplate';
+import ModernMinimal from '../Templates/ModernMinimal';
+import ProfessionalClassic from '../Templates/ProfessionalClassic';
 import ATSScanner from './ATSScanner';
 
 const ResumeBuilder = () => {
@@ -748,6 +748,7 @@ const ResumeBuilder = () => {
 
     // Log to verify template rendering
     console.log('Rendering template:', selectedTemplate.type);
+    console.log('Skills data:', formData.skills); // Log skills data
 
     const templateComponents = {
       'minimalist': MinimalistTemplate,
@@ -977,44 +978,50 @@ const ResumeBuilder = () => {
             </div>
 
             {/* Other sections (Education, Experience, etc.) */}
-            {['Education', 'Experience', 'Skillsets', 'Projects', 'Declaration', 'Others'].map((section) => (
-              <div key={section} className="border border-gray-200 rounded-lg bg-white mt-4 overflow-hidden transform transition-transform duration-200 hover:shadow-md">
-                <button 
-                  onClick={() => setActiveSection(activeSection === section ? null : section)}
-                  className="w-full flex items-center gap-3 p-4 hover:bg-gray-50 transition-colors duration-200"
-                >
-                  <div className="p-2 bg-gray-100 rounded-lg transform transition-transform duration-200 hover:scale-105">
-                    <svg className="w-5 h-5 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-                    </svg>
-                  </div>
-                  <span className="text-sm font-medium text-gray-900">{section}</span>
-                  <svg 
-                    className={`w-5 h-5 text-gray-400 ml-auto transition-all duration-300 ease-in-out transform ${
-                      activeSection === section ? 'rotate-90 scale-110' : ''
-                    }`} 
-                    fill="none" 
-                    viewBox="0 0 24 24" 
-                    stroke="currentColor"
+            {['education', 'experience', 'skills', 'projects', 'declaration', 'others'].map((sectionId) => {
+              // Find the section object from sections array
+              const sectionObj = sections.find(s => s.id === sectionId);
+              const sectionName = sectionObj ? sectionObj.name : sectionId;
+              
+              return (
+                <div key={sectionId} className="border border-gray-200 rounded-lg bg-white mt-4 overflow-hidden transform transition-transform duration-200 hover:shadow-md">
+                  <button 
+                    onClick={() => setActiveSection(activeSection === sectionId ? null : sectionId)}
+                    className="w-full flex items-center gap-3 p-4 hover:bg-gray-50 transition-colors duration-200"
                   >
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" />
-                  </svg>
-                </button>
-                <div 
-                  className={`transition-all duration-300 ease-in-out transform origin-top ${
-                    activeSection === section 
-                      ? 'max-h-[2000px] opacity-100 scale-y-100 translate-y-0' 
-                      : 'max-h-0 opacity-0 scale-y-95 -translate-y-2'
-                  }`}
-                >
-                  {activeSection === section && (
-                    <div className="animate-fadeIn">
-                      {renderSectionContent(section)}
+                    <div className="p-2 bg-gray-100 rounded-lg transform transition-transform duration-200 hover:scale-105">
+                      <svg className="w-5 h-5 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                      </svg>
                     </div>
-                  )}
+                    <span className="text-sm font-medium text-gray-900">{sectionName}</span>
+                    <svg 
+                      className={`w-5 h-5 text-gray-400 ml-auto transition-all duration-300 ease-in-out transform ${
+                        activeSection === sectionId ? 'rotate-90 scale-110' : ''
+                      }`} 
+                      fill="none" 
+                      viewBox="0 0 24 24" 
+                      stroke="currentColor"
+                    >
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" />
+                    </svg>
+                  </button>
+                  <div 
+                    className={`transition-all duration-300 ease-in-out transform origin-top ${
+                      activeSection === sectionId 
+                        ? 'max-h-[2000px] opacity-100 scale-y-100 translate-y-0' 
+                        : 'max-h-0 opacity-0 scale-y-95 -translate-y-2'
+                    }`}
+                  >
+                    {activeSection === sectionId && (
+                      <div className="animate-fadeIn">
+                        {renderSectionContent(sectionId === 'skills' ? 'Skillsets' : sectionId.charAt(0).toUpperCase() + sectionId.slice(1))}
+                      </div>
+                    )}
+                  </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
 
           {/* Preview Area */}

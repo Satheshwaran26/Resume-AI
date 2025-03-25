@@ -24,22 +24,22 @@ const Navbar = () => {
 
   return (
     <nav 
-      className={`fixed w-full z-40 transition-all duration-500  ${
+      className={`fixed w-full z-40 transition-all duration-500 ${
         scrolled 
-          ? 'bg-white/90 backdrop-blur-md shadow-lg py-3' 
+          ? 'bg-white/95 backdrop-blur-sm shadow-lg py-2' 
           : 'bg-white py-4'
       }`}
     >
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="max-w-7xl mx-auto px-4">
         <div className="flex items-center justify-between">
-          {/* Enhanced Logo */}
+          {/* Logo */}
           <div className="flex-shrink-0">
-            <Link to="/" className="flex items-center space-x-3 group">
+            <Link to="/" className="flex items-center space-x-2 group">
               <div className="relative">
-                <div className="absolute -inset-3 bg-gradient-to-r from-blue-600 to-purple-600 rounded-full opacity-20 group-hover:opacity-100 blur transition-all duration-300"></div>
-                <div className="relative p-2 rounded-lg bg-gradient-to-br from-blue-600 to-purple-600 group-hover:from-blue-500 group-hover:to-purple-500 transition-all duration-300">
+                <div className="absolute -inset-1 bg-black/20 rounded-lg opacity-75 blur-sm group-hover:opacity-100 group-hover:blur transition-all duration-300"></div>
+                <div className="relative p-2 rounded-lg bg-black group-hover:bg-gray-900 transition-all duration-300 shadow-md">
                   <svg 
-                    className="h-6 w-6 text-white transform group-hover:rotate-12 transition-transform duration-300" 
+                    className="h-5 w-5 text-white transform group-hover:scale-110 group-hover:rotate-6 transition-all duration-300" 
                     fill="none" 
                     viewBox="0 0 24 24" 
                     stroke="currentColor"
@@ -49,7 +49,7 @@ const Navbar = () => {
                 </div>
               </div>
               <div className="flex flex-col">
-                <span className="text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+                <span className="text-lg font-bold text-black">
                   ResumeBuilder
                 </span>
                 <span className="text-xs text-gray-500">Create Your Future</span>
@@ -57,14 +57,13 @@ const Navbar = () => {
             </Link>
           </div>
 
-          {/* Enhanced Desktop Menu */}
-          <div className="hidden md:flex items-center justify-center flex-1 px-8">
-            <div className="relative">
-              <div className="absolute -inset-4 bg-gradient-to-r from-blue-100 via-purple-100 to-blue-100 rounded-full opacity-50 blur-lg"></div>
-              <div className="relative flex space-x-1 bg-white/80 backdrop-blur-sm rounded-full p-1.5 shadow-lg ring-1 ring-gray-200">
+          {/* Desktop Menu */}
+          <div className="hidden md:flex items-center">
+            <div className="relative mr-4">
+              <div className="absolute -inset-3 bg-gray-100 rounded-lg blur-lg opacity-75"></div>
+              <div className="relative flex bg-white/80 backdrop-blur-sm rounded-full p-1 shadow-md">
                 {[
                   { name: 'Templates', path: '/templates', icon: '📄' },
-                  { name: 'Create Resume', path: '/builder', icon: '✏️' },
                   { name: 'Resume Tips', path: '/tips', icon: '💡' },
                   { name: 'Examples', path: '/examples', icon: '🎯' },
                   { name: 'AI Tools', path: '/ai-tools', icon: '🤖' }
@@ -72,23 +71,37 @@ const Navbar = () => {
                   <Link
                     key={item.name}
                     to={item.path}
-                    className={`relative group px-5 py-2 rounded-full text-sm font-medium transition-all duration-300 ${
+                    className={`relative group px-4 py-2 mx-1 rounded-full text-sm font-medium transition-all duration-300 overflow-hidden ${
                       isActive(item.path)
-                        ? 'bg-gradient-to-r from-blue-500 to-purple-500 text-white shadow-md'
-                        : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
+                        ? 'bg-black text-white shadow-md'
+                        : 'text-gray-600 hover:text-black hover:bg-gray-100'
                     }`}
                   >
-                    <span className="flex items-center space-x-2">
+                    <span className="flex items-center space-x-1.5">
                       <span className="text-base">{item.icon}</span>
                       <span>{item.name}</span>
                     </span>
-                    {isActive(item.path) && (
-                      <span className="absolute inset-0 rounded-full bg-gradient-to-r from-blue-500 to-purple-500 animate-pulse opacity-0 group-hover:opacity-50 transition-opacity duration-300"></span>
+                    {!isActive(item.path) && (
+                      <span className="absolute bottom-0 left-0 w-full h-0.5 bg-black transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left"></span>
                     )}
                   </Link>
                 ))}
               </div>
             </div>
+            
+            {/* Create Resume Button */}
+            <Link 
+              to="/builder"
+              className="relative group"
+            >
+              <div className="absolute -inset-1 bg-black rounded-lg blur opacity-30 group-hover:opacity-75 transition duration-300"></div>
+              <div className="relative px-6 py-2.5 bg-black rounded-lg text-white font-medium shadow-lg group-hover:shadow-xl transform group-hover:scale-105 transition-all duration-300 flex items-center">
+                <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                </svg>
+                Create Resume
+              </div>
+            </Link>
           </div>
 
           {/* Mobile Menu Button */}
@@ -96,22 +109,23 @@ const Navbar = () => {
             <button
               onClick={() => setIsOpen(!isOpen)}
               className="relative p-2 rounded-lg group focus:outline-none"
+              aria-label="Toggle menu"
             >
-              <div className="absolute -inset-2 bg-gradient-to-r from-blue-100 to-purple-100 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300 blur"></div>
+              <div className="absolute -inset-1 bg-gray-100 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300 blur-sm"></div>
               <div className="relative w-6 h-6">
                 <span 
-                  className={`absolute block w-6 h-0.5 bg-gradient-to-r from-blue-600 to-purple-600 transform transition-all duration-300 ease-in-out ${
-                    isOpen ? 'rotate-45 translate-y-0' : '-translate-y-2'
+                  className={`absolute block w-6 h-0.5 bg-black transform transition-all duration-300 ease-in-out ${
+                    isOpen ? 'rotate-45 translate-y-1.5' : '-translate-y-1'
                   }`}
                 ></span>
                 <span 
-                  className={`absolute block w-6 h-0.5 bg-gradient-to-r from-purple-600 to-blue-600 transform transition-all duration-300 ease-in-out ${
+                  className={`absolute block w-6 h-0.5 bg-black transform transition-all duration-300 ${
                     isOpen ? 'opacity-0' : 'opacity-100'
                   }`}
                 ></span>
                 <span 
-                  className={`absolute block w-6 h-0.5 bg-gradient-to-r from-blue-600 to-purple-600 transform transition-all duration-300 ease-in-out ${
-                    isOpen ? '-rotate-45 translate-y-0' : 'translate-y-2'
+                  className={`absolute block w-6 h-0.5 bg-black transform transition-all duration-300 ease-in-out ${
+                    isOpen ? '-rotate-45 translate-y-1.5' : 'translate-y-1'
                   }`}
                 ></span>
               </div>
@@ -120,39 +134,49 @@ const Navbar = () => {
         </div>
       </div>
 
-      {/* Enhanced Mobile Menu */}
+      {/* Mobile Menu */}
       <div 
         className={`md:hidden overflow-hidden transition-all duration-500 ease-in-out ${
-          isOpen ? 'max-h-[32rem] opacity-100' : 'max-h-0 opacity-0'
+          isOpen ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'
         }`}
       >
-        <div className="bg-white/80 backdrop-blur-md shadow-xl rounded-b-3xl px-4 pt-4 pb-6">
-          <div className="relative">
-            <div className="absolute -inset-4 bg-gradient-to-r from-blue-50 via-purple-50 to-blue-50 rounded-2xl opacity-50 blur-lg"></div>
-            <div className="relative space-y-1">
-              {[
-                { name: 'Templates', path: '/templates', icon: '📄' },
-                { name: 'Create Resume', path: '/builder', icon: '✏️' },
-                { name: 'Resume Tips', path: '/tips', icon: '💡' },
-                { name: 'Examples', path: '/examples', icon: '🎯' },
-                { name: 'AI Tools', path: '/ai-tools', icon: '🤖' }
-              ].map((item) => (
-                <Link
-                  key={item.name}
-                  to={item.path}
-                  className={`block px-4 py-3 rounded-xl text-base font-medium transition-all ${
-                    isActive(item.path)
-                      ? 'bg-gradient-to-r from-blue-500 to-purple-500 text-white shadow-md'
-                      : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
-                  }`}
-                >
-                  <span className="flex items-center space-x-3">
-                    <span className="text-xl">{item.icon}</span>
-                    <span>{item.name}</span>
-                  </span>
-                </Link>
-              ))}
-            </div>
+        <div className="bg-white/90 backdrop-blur-sm shadow-xl rounded-b-2xl px-4 pt-3 pb-5">
+          <div className="space-y-2">
+            {/* Create Resume Button - Mobile */}
+            <Link 
+              to="/builder"
+              className="block w-full bg-black text-white px-4 py-3 rounded-xl text-center font-medium shadow-md mb-3"
+            >
+              <span className="flex items-center justify-center">
+                <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                </svg>
+                Create Resume
+              </span>
+            </Link>
+            
+            {/* Navigation Links */}
+            {[
+              { name: 'Templates', path: '/templates', icon: '📄' },
+              { name: 'Resume Tips', path: '/tips', icon: '💡' },
+              { name: 'Examples', path: '/examples', icon: '🎯' },
+              { name: 'AI Tools', path: '/ai-tools', icon: '🤖' }
+            ].map((item) => (
+              <Link
+                key={item.name}
+                to={item.path}
+                className={`block px-4 py-3 rounded-xl text-base font-medium transition-all duration-300 ${
+                  isActive(item.path)
+                    ? 'bg-black text-white shadow-md'
+                    : 'text-gray-600 hover:text-black hover:bg-gray-100'
+                }`}
+              >
+                <span className="flex items-center space-x-3">
+                  <span className="text-xl">{item.icon}</span>
+                  <span>{item.name}</span>
+                </span>
+              </Link>
+            ))}
           </div>
         </div>
       </div>

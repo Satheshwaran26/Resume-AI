@@ -16,7 +16,6 @@ const Hero = () => {
         <div className="absolute w-[1000px] h-[1000px] -bottom-40 -left-40 bg-gradient-to-tr from-pink-50 to-indigo-50 rounded-full blur-3xl animate-pulse delay-700"></div>
         <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSJub25lIiBzdHJva2U9IiMwMDAwMDAwNSIgc3Ryb2tlLXdpZHRoPSIxIi8+PC9zdmc+')] opacity-20"></div>
       </div>
-
       <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Enhanced Hero Content */}
         <div className="grid lg:grid-cols-2 gap-20 items-center min-h-screen">
@@ -26,18 +25,15 @@ const Hero = () => {
               <div className="w-2 h-2 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full animate-pulse"></div>
               <span className="text-sm text-gray-800 tracking-wider font-medium">CRAFT YOUR PERFECT RESUME</span>
             </div>
-
             <div className="space-y-8">
               <h1 className="text-7xl lg:text-8xl font-semibold tracking-tight leading-[1.1]">
                 <span className="text-transparent bg-clip-text bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900 animate-gradient-x">Build Your</span>
                 <span className="block mt-3 text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600">Dream Career</span>
               </h1>
-              
               <p className="text-xl text-gray-600 max-w-xl font-light leading-relaxed">
                 Create professional resumes that stand out. Our AI-powered platform helps you craft the perfect resume for your dream job.
               </p>
             </div>
-
             <div className="flex flex-col sm:flex-row gap-6">
               <Link
                 to="/builder"

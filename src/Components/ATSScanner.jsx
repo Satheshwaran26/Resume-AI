@@ -1,258 +1,231 @@
 import React, { useState } from 'react';
+import { FaUpload, FaCheckCircle, FaTimesCircle, FaDownload, FaClipboard } from 'react-icons/fa';
 
-const ATSScanner = ({ resumeData, onClose }) => {
-  const [scanResults, setScanResults] = useState(null);
-  const [isScanning, setIsScanning] = useState(false);
+const ATSScanner = () => {
+  const [file, setFile] = useState(null);
+  const [jobDescription, setJobDescription] = useState('');
+  const [scanning, setScanning] = useState(false);
+  const [results, setResults] = useState(null);
 
-  const scanResume = () => {
-    setIsScanning(true);
+  // Handle file upload
+  const handleFileChange = (e) => {
+    const selectedFile = e.target.files[0];
+    if (selectedFile && (selectedFile.type === 'application/pdf' || selectedFile.type === 'application/msword' || selectedFile.type === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document')) {
+      setFile(selectedFile);
+    } else {
+      alert('Please upload a valid resume file (PDF or Word document)');
+    }
+  };
+
+  // Handle form submission
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    if (!file) {
+      alert('Please upload your resume');
+      return;
+    }
+    if (!jobDescription) {
+      alert('Please paste the job description');
+      return;
+    }
+
+    // Start scanning animation
+    setScanning(true);
     
-    // Simulate ATS scanning (in a real app, this would call an AI service)
+    // Mock API call - in a real app, you would send to a backend
     setTimeout(() => {
-      const results = {
-        score: calculateATSScore(resumeData),
-        recommendations: generateRecommendations(resumeData),
-        keywordMatch: analyzeKeywords(resumeData),
-        formatting: checkFormatting(resumeData)
-      };
-      
-      setScanResults(results);
-      setIsScanning(false);
+      // Mock results
+      setResults({
+        score: 78,
+        keywords: {
+          matched: ['React', 'JavaScript', 'API integration', 'responsive design'],
+          missing: ['TypeScript', 'Redux', 'Unit Testing', 'AWS']
+        },
+        format: {
+          isGood: true,
+          readability: 'High'
+        },
+        suggestions: [
+          'Add experience with TypeScript to your resume',
+          'Include examples of Redux state management',
+          'Highlight any unit testing experience',
+          'Mention any AWS or cloud experience you have'
+        ]
+      });
+      setScanning(false);
     }, 2000);
   };
 
-  const calculateATSScore = (data) => {
-    let score = 0;
-    const maxScore = 100;
-    
-    // Check for essential sections
-    if (data.personalInfo.email) score += 10;
-    if (data.personalInfo.phone) score += 10;
-    if (data.experience.length > 0) score += 20;
-    if (data.education.length > 0) score += 15;
-    if (data.skills.length > 0) score += 15;
-    if (data.personalInfo.summary) score += 10;
-    
-    // Additional points for completeness
-    const hasDetailedExperience = data.experience.every(exp => 
-      exp.company && exp.position && exp.description && exp.startDate
-    );
-    if (hasDetailedExperience) score += 10;
-    
-    const hasDetailedEducation = data.education.every(edu =>
-      edu.institution && edu.degree && edu.startDate
-    );
-    if (hasDetailedEducation) score += 10;
-
-    return Math.min(score, maxScore);
-  };
-
-  const generateRecommendations = (data) => {
-    const recommendations = [];
-
-    // Check personal info
-    if (!data.personalInfo.email || !data.personalInfo.phone) {
-      recommendations.push("Add contact information (email and phone) for better visibility");
-    }
-
-    // Check experience descriptions
-    data.experience.forEach((exp, index) => {
-      if (!exp.description || exp.description.length < 50) {
-        recommendations.push(`Add more details to work experience #${index + 1}`);
-      }
-    });
-
-    // Check skills
-    if (data.skills.length < 5) {
-      recommendations.push("Add more relevant skills to improve keyword matching");
-    }
-
-    // Check summary
-    if (!data.personalInfo.summary || data.personalInfo.summary.length < 100) {
-      recommendations.push("Add a detailed professional summary");
-    }
-
-    return recommendations;
-  };
-
-  const analyzeKeywords = (data) => {
-    // Common ATS keywords (this would be more comprehensive in a real app)
-    const commonKeywords = [
-      'managed', 'developed', 'led', 'created', 'implemented',
-      'team', 'project', 'success', 'improvement', 'results',
-      'experience', 'skills', 'leadership', 'achievement'
-    ];
-
-    const foundKeywords = new Set();
-    const missingKeywords = new Set(commonKeywords);
-
-    // Check experience descriptions
-    data.experience.forEach(exp => {
-      commonKeywords.forEach(keyword => {
-        if (exp.description?.toLowerCase().includes(keyword.toLowerCase())) {
-          foundKeywords.add(keyword);
-          missingKeywords.delete(keyword);
-        }
-      });
-    });
-
-    return {
-      found: Array.from(foundKeywords),
-      missing: Array.from(missingKeywords)
-    };
-  };
-
-  const checkFormatting = (data) => {
-    const issues = [];
-
-    // Check for proper date formatting
-    data.experience.forEach((exp, index) => {
-      if (!exp.startDate || !exp.endDate && !exp.current) {
-        issues.push(`Missing dates in experience #${index + 1}`);
-      }
-    });
-
-    // Check for proper capitalization in titles
-    if (data.personalInfo.title && 
-        data.personalInfo.title === data.personalInfo.title.toLowerCase()) {
-      issues.push("Professional title should be properly capitalized");
-    }
-
-    // Check for proper section organization
-    if (!data.experience.length || !data.education.length) {
-      issues.push("Essential sections (Experience/Education) are missing");
-    }
-
-    return issues;
-  };
-
   return (
-    <div className="p-6 bg-white rounded-lg shadow">
-      <div className="mb-6">
-        <h2 className="text-2xl font-semibold text-gray-800 mb-2">ATS Resume Scanner</h2>
-        <p className="text-gray-600">
-          Analyze your resume for ATS (Applicant Tracking System) compatibility
-        </p>
-      </div>
-
-      {!scanResults && (
-        <button
-          onClick={scanResume}
-          disabled={isScanning}
-          className="w-full py-3 px-4 bg-purple-600 text-white rounded-lg hover:bg-purple-700 disabled:bg-purple-300 flex items-center justify-center gap-2"
-        >
-          {isScanning ? (
-            <>
-              <svg className="animate-spin h-5 w-5" viewBox="0 0 24 24">
-                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
-                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
-              </svg>
-              Scanning Resume...
-            </>
-          ) : (
-            'Scan Resume'
-          )}
-        </button>
-      )}
-
-      {scanResults && (
-        <div className="space-y-6">
-          {/* Score Section */}
-          <div className="text-center">
-            <div className="inline-flex items-center justify-center w-32 h-32 rounded-full border-8 border-purple-100">
-              <div className="text-3xl font-bold text-purple-600">{scanResults.score}%</div>
-            </div>
-            <p className="mt-2 text-gray-600">ATS Compatibility Score</p>
-          </div>
-
-          {/* Recommendations */}
-          <div className="border-t pt-6">
-            <h3 className="text-lg font-semibold text-gray-800 mb-3">Recommendations</h3>
-            <ul className="space-y-2">
-              {scanResults.recommendations.map((rec, index) => (
-                <li key={index} className="flex items-start gap-2 text-gray-600">
-                  <svg className="w-5 h-5 text-yellow-500 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-                  </svg>
-                  {rec}
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          {/* Keyword Analysis */}
-          <div className="border-t pt-6">
-            <h3 className="text-lg font-semibold text-gray-800 mb-3">Keyword Analysis</h3>
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <h4 className="text-sm font-medium text-gray-600 mb-2">Found Keywords</h4>
-                <div className="flex flex-wrap gap-2">
-                  {scanResults.keywordMatch.found.map((keyword, index) => (
-                    <span key={index} className="px-2 py-1 bg-green-100 text-green-800 rounded text-sm">
-                      {keyword}
-                    </span>
-                  ))}
+    <div className="pt-28 pb-16 min-h-screen bg-gradient-to-b from-white to-indigo-50">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="text-center mb-12">
+          <h1 className="text-4xl font-bold bg-gradient-to-r from-purple-600 to-indigo-600 bg-clip-text text-transparent mb-4">
+            ATS Resume Scanner
+          </h1>
+          <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+            Test your resume against Applicant Tracking Systems and get instant feedback to improve your chances of landing an interview.
+          </p>
+        </div>
+        
+        {!results ? (
+          <div className="bg-white shadow-xl rounded-xl p-8 max-w-4xl mx-auto">
+            <form onSubmit={handleSubmit}>
+              <div className="mb-8">
+                <h2 className="text-xl font-semibold text-gray-800 mb-4">Upload Your Resume</h2>
+                <div className={`border-2 border-dashed rounded-lg p-6 text-center ${file ? 'border-green-500 bg-green-50' : 'border-gray-300 hover:border-indigo-500 bg-gray-50'}`}>
+                  {file ? (
+                    <div className="flex items-center justify-center space-x-3">
+                      <FaCheckCircle className="text-green-500 text-xl" />
+                      <span className="text-green-700">{file.name} uploaded successfully</span>
+                      <button 
+                        type="button" 
+                        className="ml-2 text-red-500 hover:text-red-700" 
+                        onClick={() => setFile(null)}
+                      >
+                        <FaTimesCircle />
+                      </button>
+                    </div>
+                  ) : (
+                    <label className="cursor-pointer flex flex-col items-center justify-center">
+                      <FaUpload className="text-indigo-500 text-4xl mb-2" />
+                      <span className="text-gray-600 mb-1">Drag & drop your resume or click to browse</span>
+                      <span className="text-gray-400 text-sm">Supported formats: PDF, DOCX</span>
+                      <input 
+                        type="file" 
+                        className="hidden" 
+                        accept=".pdf,.doc,.docx" 
+                        onChange={handleFileChange} 
+                      />
+                    </label>
+                  )}
                 </div>
               </div>
-              <div>
-                <h4 className="text-sm font-medium text-gray-600 mb-2">Suggested Keywords</h4>
-                <div className="flex flex-wrap gap-2">
-                  {scanResults.keywordMatch.missing.map((keyword, index) => (
-                    <span key={index} className="px-2 py-1 bg-gray-100 text-gray-800 rounded text-sm">
-                      {keyword}
-                    </span>
-                  ))}
+              
+              <div className="mb-8">
+                <h2 className="text-xl font-semibold text-gray-800 mb-4">Paste Job Description</h2>
+                <textarea 
+                  className="w-full p-4 border rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 h-64 resize-none"
+                  placeholder="Paste the job description here to compare with your resume..."
+                  value={jobDescription}
+                  onChange={(e) => setJobDescription(e.target.value)}
+                ></textarea>
+              </div>
+              
+              <div className="text-center">
+                <button 
+                  type="submit" 
+                  className={`px-8 py-3 rounded-lg font-semibold text-white text-lg ${scanning ? 'bg-gray-400 cursor-not-allowed' : 'bg-indigo-600 hover:bg-indigo-700'}`}
+                  disabled={scanning}
+                >
+                  {scanning ? (
+                    <>
+                      <span className="inline-block animate-spin mr-2">⟳</span> 
+                      Analyzing Resume...
+                    </>
+                  ) : (
+                    'Scan My Resume'
+                  )}
+                </button>
+              </div>
+            </form>
+          </div>
+        ) : (
+          <div className="bg-white shadow-xl rounded-xl p-8 max-w-4xl mx-auto">
+            <div className="text-center mb-6">
+              <div className="inline-block rounded-full p-4 bg-indigo-100 mb-4">
+                <div className="text-5xl font-bold bg-gradient-to-r from-purple-600 to-indigo-600 bg-clip-text text-transparent">
+                  {results.score}%
                 </div>
               </div>
-            </div>
-          </div>
-
-          {/* Formatting Issues */}
-          <div className="border-t pt-6">
-            <h3 className="text-lg font-semibold text-gray-800 mb-3">Formatting Check</h3>
-            {scanResults.formatting.length > 0 ? (
-              <ul className="space-y-2">
-                {scanResults.formatting.map((issue, index) => (
-                  <li key={index} className="flex items-start gap-2 text-gray-600">
-                    <svg className="w-5 h-5 text-red-500 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
-                    </svg>
-                    {issue}
-                  </li>
-                ))}
-              </ul>
-            ) : (
-              <p className="text-green-600 flex items-center gap-2">
-                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
-                </svg>
-                No formatting issues detected
+              <h2 className="text-2xl font-bold text-gray-800">ATS Compatibility Score</h2>
+              <p className="text-gray-600">
+                {results.score >= 80 ? 'Excellent!' : results.score >= 60 ? 'Good, but could be improved' : 'Needs improvement'}
               </p>
-            )}
+            </div>
+            
+            <div className="grid md:grid-cols-2 gap-6 mb-8">
+              <div className="bg-indigo-50 p-6 rounded-lg">
+                <h3 className="text-lg font-semibold text-indigo-800 mb-3">Keywords Matched</h3>
+                <div className="flex flex-wrap gap-2">
+                  {results.keywords.matched.map((keyword, index) => (
+                    <span key={`matched-${index}`} className="px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm">
+                      {keyword}
+                    </span>
+                  ))}
+                </div>
+              </div>
+              
+              <div className="bg-indigo-50 p-6 rounded-lg">
+                <h3 className="text-lg font-semibold text-indigo-800 mb-3">Missing Keywords</h3>
+                <div className="flex flex-wrap gap-2">
+                  {results.keywords.missing.map((keyword, index) => (
+                    <span key={`missing-${index}`} className="px-3 py-1 bg-red-100 text-red-800 rounded-full text-sm">
+                      {keyword}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            </div>
+            
+            <div className="mb-8">
+              <h3 className="text-lg font-semibold text-gray-800 mb-3">Improvement Suggestions</h3>
+              <div className="bg-white border border-gray-200 rounded-lg">
+                {results.suggestions.map((suggestion, index) => (
+                  <div key={index} className={`p-4 ${index !== results.suggestions.length - 1 ? 'border-b border-gray-200' : ''}`}>
+                    <div className="flex items-start">
+                      <FaCheckCircle className="text-indigo-500 mt-1 mr-3 flex-shrink-0" />
+                      <p className="text-gray-700">{suggestion}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+            
+            <div className="flex flex-wrap justify-center gap-4">
+              <button className="flex items-center px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg font-medium">
+                <FaDownload className="mr-2" /> Download Report
+              </button>
+              <button 
+                className="flex items-center px-6 py-3 border border-indigo-600 text-indigo-600 hover:bg-indigo-50 rounded-lg font-medium"
+                onClick={() => {
+                  setResults(null);
+                  setFile(null);
+                  setJobDescription('');
+                }}
+              >
+                Scan Another Resume
+              </button>
+            </div>
           </div>
-
-          {/* Buttons */}
-          <div className="flex gap-4">
-            <button
-              onClick={() => {
-                setScanResults(null);
-                scanResume();
-              }}
-              className="flex-1 py-3 px-4 bg-purple-600 text-white rounded-lg hover:bg-purple-700"
-            >
-              Scan Again
-            </button>
-            <button
-              onClick={onClose}
-              className="flex-1 py-3 px-4 bg-gray-600 text-white rounded-lg hover:bg-gray-700"
-            >
-              Close
-            </button>
+        )}
+        
+        <div className="mt-16 text-center">
+          <h3 className="text-2xl font-bold text-gray-800 mb-4">Why Use Our ATS Scanner?</h3>
+          
+          <div className="grid md:grid-cols-3 gap-8 max-w-4xl mx-auto">
+            <div className="bg-white p-6 rounded-lg shadow-md">
+              <div className="text-indigo-600 text-3xl mb-3">🎯</div>
+              <h4 className="text-xl font-semibold mb-2">Keyword Optimization</h4>
+              <p className="text-gray-600">Identify missing keywords from the job description to optimize your resume.</p>
+            </div>
+            
+            <div className="bg-white p-6 rounded-lg shadow-md">
+              <div className="text-indigo-600 text-3xl mb-3">📊</div>
+              <h4 className="text-xl font-semibold mb-2">Format Analysis</h4>
+              <p className="text-gray-600">Ensure your resume format is ATS-friendly and easily parsed by automated systems.</p>
+            </div>
+            
+            <div className="bg-white p-6 rounded-lg shadow-md">
+              <div className="text-indigo-600 text-3xl mb-3">🚀</div>
+              <h4 className="text-xl font-semibold mb-2">Success Rate</h4>
+              <p className="text-gray-600">Candidates who optimize their resumes are 3x more likely to get interviews.</p>
+            </div>
           </div>
         </div>
-      )}
+      </div>
     </div>
   );
 };
 
-export default ATSScanner; 
+export default ATSScanner;

@@ -1,12 +1,13 @@
 import { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import CreativeColorful from '../Templates/CreativeColorful';
-import MinimalistTemplate from '../Templates/MinimalistTemplate';
-import ModernMinimal from '../Templates/ModernMinimal';
-import ProfessionalClassic from '../Templates/ProfessionalClassic';
+import CreativeColorful from './Templates/CreativeColorful';
+import MinimalistTemplate from './Templates/MinimalistTemplate';
+import ModernMinimal from './Templates/ModernMinimal';
+import ProfessionalClassic from './ResumeTemplates/ProfessionalClassic';
 import ATSScanner from './ATSScanner';
+import AIResumeInput from './AIResumeInput'; // New component for AI input
 
-const ResumeBuilder = () => {
+const ResumeBuilder = ({ aiAssisted = false }) => {
   const location = useLocation();
   const navigate = useNavigate();
   const [selectedTemplate, setSelectedTemplate] = useState(null);
@@ -79,6 +80,10 @@ const ResumeBuilder = () => {
   const [expandedSection, setExpandedSection] = useState(null);
   const [showATSScanner, setShowATSScanner] = useState(false);
   const [isPersonalInfoExpanded, setIsPersonalInfoExpanded] = useState(true);
+  const [isAiMode, setIsAiMode] = useState(aiAssisted);
+  const [aiInputData, setAiInputData] = useState("");
+  const [aiProcessing, setAiProcessing] = useState(false);
+  const [aiStep, setAiStep] = useState(1); // 1: Input, 2: Processing, 3: Review
   
   // Sections for navigation
   const sections = [
@@ -97,7 +102,21 @@ const ResumeBuilder = () => {
     // Log to verify data
     console.log('Location state:', location.state);
     
-    if (location.state && location.state.template) {
+    // Initialize based on aiAssisted prop
+    if (aiAssisted) {
+      setIsAiMode(true);
+      // Skip template selection in AI mode
+      if (location.state && location.state.template) {
+        setSelectedTemplate(location.state.template);
+      } else {
+        // Default to a template in AI mode
+        setSelectedTemplate({ 
+          type: 'modern-minimal',
+          name: 'Modern Minimal',
+          description: 'A clean, modern design with minimal elements'
+        });
+      }
+    } else if (location.state && location.state.template) {
       setSelectedTemplate(location.state.template);
       // Set Personal Info as the active section by default
       setActiveSection('personalInfo');
@@ -110,7 +129,15 @@ const ResumeBuilder = () => {
     setTimeout(() => {
       setIsVisible(true);
     }, 100);
-  }, [location, navigate]);
+  }, [location, navigate, aiAssisted]);
+
+  useEffect(() => {
+    // If aiAssisted is true, we can start the AI questionnaire process
+    if (aiAssisted) {
+      // Logic for AI questionnaire could go here
+      console.log("Starting AI-assisted resume building");
+    }
+  }, [aiAssisted]);
 
   // Handle form input changes
   const handleInputChange = (section, field, value, index = null) => {
@@ -806,6 +833,126 @@ const ResumeBuilder = () => {
     );
   };
 
+  // Handle AI input submission
+  const handleAIInputSubmit = async (inputText) => {
+    setAiProcessing(true);
+    setAiStep(2); // Processing step
+    
+    try {
+      // Here you would call your AI service to process the input
+      // For now, we'll simulate with a timeout
+      await new Promise(resolve => setTimeout(resolve, 3000));
+      
+      // Simulate AI-generated resume data
+      const generatedData = generateResumeFromAI(inputText);
+      setFormData(generatedData);
+      
+      // Move to review step
+      setAiStep(3);
+      setActiveSection('personalInfo');
+    } catch (error) {
+      console.error("Error processing AI input:", error);
+      // Handle error appropriately
+    } finally {
+      setAiProcessing(false);
+    }
+  };
+
+  // Function to generate resume data from AI input (placeholder)
+  const generateResumeFromAI = (inputText) => {
+    // In a real implementation, this would be parsed from the AI response
+    // For now, we'll extract some basic info from the input
+    
+    // Very simple extraction logic for demo purposes
+    const nameParts = inputText.match(/name is ([A-Za-z\s]+)/i);
+    const firstName = nameParts ? nameParts[1].split(' ')[0] : '';
+    const lastName = nameParts && nameParts[1].split(' ').length > 1 ? 
+      nameParts[1].split(' ').slice(1).join(' ') : '';
+    
+    const emailMatch = inputText.match(/email is ([a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})/i);
+    const email = emailMatch ? emailMatch[1] : '';
+    
+    const phoneMatch = inputText.match(/phone is (\+?[0-9\s-]{10,15})/i);
+    const phone = phoneMatch ? phoneMatch[1] : '';
+    
+    const jobTitleMatch = inputText.match(/(?:I am a|I work as an?|as an?|position is) ([A-Za-z\s]+)/i);
+    const jobTitle = jobTitleMatch ? jobTitleMatch[1].trim() : '';
+    
+    // Create a new data object based on the existing formData structure
+    return {
+      ...formData,
+      personalInfo: {
+        ...formData.personalInfo,
+        firstName,
+        lastName,
+        email,
+        phone,
+        title: jobTitle,
+        summary: inputText.substring(0, 150) + "..." // Simple summary
+      },
+      // You could add more sophisticated parsing for other sections
+    };
+  };
+
+  // Render the AI input form
+  const renderAIInputForm = () => {
+    if (aiStep === 1) {
+      return (
+        <AIResumeInput 
+          onSubmit={handleAIInputSubmit} 
+          setInputData={setAiInputData}
+          inputData={aiInputData}
+        />
+      );
+    } else if (aiStep === 2) {
+      return (
+        <div className="flex flex-col items-center justify-center p-8 min-h-[60vh]">
+          <div className="w-16 h-16 mb-6">
+            <svg className="animate-spin h-16 w-16 text-blue-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+          </div>
+          <h3 className="text-xl font-medium text-gray-900 mb-2">Creating Your Resume</h3>
+          <p className="text-gray-600 max-w-md text-center">
+            Our AI is analyzing your input and crafting a professional resume. This may take a few moments...
+          </p>
+        </div>
+      );
+    } else {
+      // This should not happen as we should switch to normal mode after processing
+      return null;
+    }
+  };
+
+  // Modified main render logic to handle AI mode
+  if (isAiMode && aiStep < 3) {
+    return (
+      <div className="min-h-screen bg-white z-40">
+        {/* Header */}
+        <header className="border-b border-gray-200 bg-white pt-20">
+          <div className="max-w-[1400px] mx-auto px-6 h-16 flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <a href="/dashboard" className="text-blue-600 text-sm hover:underline">Dashboard</a>
+              <span className="text-gray-400">/</span>
+              <span className="text-gray-600 text-sm">AI Resume Creator</span>
+            </div>
+            <div>
+              <h1 className="text-xl font-normal text-gray-800">AI-Assisted Resume Builder</h1>
+            </div>
+          </div>
+        </header>
+
+        {/* Main Content for AI Input */}
+        <div className="max-w-[1400px] mx-auto px-6 py-6">
+          <div className={`transition-opacity duration-500 ${isVisible ? 'opacity-100' : 'opacity-0'}`}>
+            {renderAIInputForm()}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-white z-40 ">
       {/* Header */}
@@ -814,7 +961,9 @@ const ResumeBuilder = () => {
           <div className="flex items-center gap-2">
             <a href="/dashboard" className="text-blue-600 text-sm hover:underline">Dashboard</a>
             <span className="text-gray-400">/</span>
-            <span className="text-gray-600 text-sm">Resume Builder</span>
+            <span className="text-gray-600 text-sm">
+              {isAiMode ? 'AI Resume Creator' : 'Resume Builder'}
+            </span>
           </div>
           
           <div className="flex items-center gap-4">

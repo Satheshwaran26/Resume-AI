@@ -1,9 +1,48 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-
 
 const TemplateSelection = () => {
   const navigate = useNavigate();
+  const [imageErrors, setImageErrors] = useState({});
+
+  const templates = [
+    {
+      id: 'minimalist',
+      name: 'Minimalist',
+      type: 'minimalist',
+      description: 'Clean and simple design',
+      preview: '/templates/minimalist-preview.png'
+    },
+    {
+      id: 'modern-minimal',
+      name: 'Modern Minimal',
+      type: 'modern-minimal',
+      description: 'Contemporary and professional',
+      preview: '/templates/modern-minimal-preview.png'
+    },
+    {
+      id: 'creative-colorful',
+      name: 'Creative Colorful',
+      type: 'creative-colorful',
+      description: 'Bold and creative design',
+      preview: '/templates/creative-colorful-preview.png'
+    }
+  ];
+
+  // Preload images once to prevent constant reloading
+  useEffect(() => {
+    // Preload template images
+    templates.forEach(template => {
+      const img = new Image();
+      img.src = template.preview;
+      img.onerror = () => {
+        setImageErrors(prev => ({
+          ...prev,
+          [template.id]: true
+        }));
+      };
+    });
+  }, []);
 
   // Sample data for preview
   const sampleData = {
@@ -26,36 +65,19 @@ const TemplateSelection = () => {
     ]
   };
 
-  const templates = [
-    {
-      id: 'minimalist',
-      name: 'Minimalist',
-      type: 'minimalist',
-      description: 'Clean and simple design',
-      preview: '/templates/minimalist-preview.png'
-    },
-    {
-      id: 'modern-minimal',
-      name: 'Modern Minimal',
-      type: 'modern-minimal',
-      description: 'Contemporary and professional',
-      preview: '/templates/modern-minimal-preview.png'
-    },
-
-    {
-      id: 'creative-colorful',
-      name: 'Creative Colorful',
-      type: 'creative-colorful',
-      description: 'Bold and creative design',
-      preview: '/templates/creative-colorful-preview.png'
-    }
- 
-  ];
-
   const handleTemplateSelect = (template) => {
     navigate('/resume-builder', {
       state: { template }
     });
+  };
+
+  const handleImageError = (templateId) => {
+    if (!imageErrors[templateId]) {
+      setImageErrors(prev => ({
+        ...prev,
+        [templateId]: true
+      }));
+    }
   };
 
   return (
@@ -86,14 +108,18 @@ const TemplateSelection = () => {
               </div>
 
               <div className="relative aspect-[4/5] bg-gray-100">
-                <img
-                  src={template.preview}
-                  alt={`${template.name} template preview`}
-                  className="w-full h-full object-cover"
-                  onError={(e) => {
-                    e.target.src = '/templates/placeholder-preview.png';
-                  }}
-                />
+                {imageErrors[template.id] ? (
+                  <div className="w-full h-full flex items-center justify-center bg-gray-200 text-gray-500">
+                    <span>{template.name} Preview</span>
+                  </div>
+                ) : (
+                  <img
+                    src={template.preview}
+                    alt={`${template.name} template preview`}
+                    className="w-full h-full object-cover"
+                    onError={() => handleImageError(template.id)}
+                  />
+                )}
               </div>
 
               <div className="p-4 bg-gray-50 border-t">

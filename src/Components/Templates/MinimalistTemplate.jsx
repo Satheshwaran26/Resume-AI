@@ -2,151 +2,212 @@ import React from 'react';
 
 const MinimalistTemplate = ({ data }) => {
   const {
-    personalInfo = {},
-    education = [],
-    experience = [],
-    skills = {},
-    projects = [],
-    certifications = [],
-    honors = []
-  } = data || {};
+    personalInfo,
+    experience,
+    education,
+    skills,
+    languages,
+    certifications,
+    projects,
+    declaration,
+    others
+  } = data;
 
   return (
-    <div className="bg-white w-full max-w-[800px] mx-auto p-8 leading-relaxed">
+    <div className="min-h-[1056px] p-8 bg-white font-['Inter', sans-serif]">
       {/* Header */}
-      <header className="text-center mb-12">
-        <h1 className="text-5xl font-extralight mb-2">
+      <div className="mb-8 pb-4 border-b border-gray-200">
+        <h1 className="text-3xl font-light text-gray-900 mb-1">
           {personalInfo.firstName} {personalInfo.lastName}
         </h1>
-        <p className="text-gray-600 uppercase tracking-wider mb-2">{personalInfo.title}</p>
-        <p className="text-gray-600 mb-2">
-          {personalInfo.email} | {personalInfo.phone} | {personalInfo.location}
-        </p>
-        <div className="flex justify-center gap-2 text-gray-600">
-          <a href={personalInfo.github}>GitHub</a>|
-          <a href={personalInfo.linkedin}>LinkedIn</a>|
-          <a href={personalInfo.portfolio}>Portfolio</a>
+        <p className="text-lg text-gray-600 mb-3">{personalInfo.title}</p>
+        <div className="flex flex-wrap gap-4 text-sm text-gray-500">
+          {personalInfo.email && (
+            <span>{personalInfo.email}</span>
+          )}
+          {personalInfo.phone && (
+            <span>{personalInfo.phone}</span>
+          )}
+          {personalInfo.address && (
+            <span>{personalInfo.address}</span>
+          )}
         </div>
-      </header>
+      </div>
 
-      {/* Education Section */}
-      <section className="mb-8">
-        <h2 className="text-xl text-gray-700 mb-4">EDUCATION</h2>
-        {education.map((edu, index) => (
-          <div key={index} className="mb-4">
-            <div className="flex justify-between">
-              <div>
-                <h3 className="font-medium text-gray-800">{edu.institution}</h3>
-                {edu.degree && (
-                  <p className="text-gray-700">{edu.degree}</p>
-                )}
-                {edu.percentage && (
-                  <p className="text-gray-600">Percentage: {edu.percentage}</p>
+      {/* Professional Summary */}
+      {personalInfo.summary && (
+        <div className="mb-8">
+          <h2 className="text-lg font-medium text-gray-900 mb-3">About</h2>
+          <p className="text-gray-600 leading-relaxed">{personalInfo.summary}</p>
+        </div>
+      )}
+
+      {/* Experience */}
+      {experience.length > 0 && (
+        <div className="mb-8">
+          <h2 className="text-lg font-medium text-gray-900 mb-4">Experience</h2>
+          <div className="space-y-6">
+            {experience.map((exp) => (
+              <div key={exp.id}>
+                <div className="flex justify-between items-start mb-1">
+                  <div>
+                    <h3 className="font-medium text-gray-900">{exp.position}</h3>
+                    <p className="text-gray-600">{exp.company}</p>
+                  </div>
+                  <p className="text-sm text-gray-500">
+                    {exp.startDate} - {exp.current ? 'Present' : exp.endDate}
+                  </p>
+                </div>
+                <p className="text-gray-600 text-sm">{exp.description}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Education */}
+      {education.length > 0 && (
+        <div className="mb-8">
+          <h2 className="text-lg font-medium text-gray-900 mb-4">Education</h2>
+          <div className="space-y-4">
+            {education.map((edu) => (
+              <div key={edu.id}>
+                <div className="flex justify-between items-start mb-1">
+                  <div>
+                    <h3 className="font-medium text-gray-900">{edu.degree}</h3>
+                    <p className="text-gray-600">{edu.institution}</p>
+                  </div>
+                  <p className="text-sm text-gray-500">
+                    {edu.startDate} - {edu.current ? 'Present' : edu.endDate}
+                  </p>
+                </div>
+                {edu.description && (
+                  <p className="text-gray-600 text-sm">{edu.description}</p>
                 )}
               </div>
-              <div className="text-right">
-                <p className="text-gray-700">{edu.startDate} - {edu.endDate}</p>
-                <p className="text-gray-700">{edu.location}</p>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Skills */}
+      {skills && skills.length > 0 && (
+        <div className="mb-8">
+          <h2 className="text-lg font-medium text-gray-900 mb-3">Skills</h2>
+          <div className="flex flex-wrap gap-2">
+            {skills.map((skill) => (
+              <span 
+                key={skill.id}
+                className="px-3 py-1 bg-gray-100 text-gray-600 text-sm rounded"
+              >
+                {skill.name}
+              </span>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Projects */}
+      {projects.length > 0 && (
+        <div className="mb-8">
+          <h2 className="text-lg font-medium text-gray-900 mb-4">Projects</h2>
+          <div className="space-y-4">
+            {projects.map((project) => (
+              <div key={project.id}>
+                <h3 className="font-medium text-gray-900">{project.name}</h3>
+                <p className="text-gray-600 text-sm mb-2">{project.description}</p>
+                {project.technologies.length > 0 && (
+                  <div className="flex flex-wrap gap-2">
+                    {project.technologies.map((tech, index) => (
+                      <span 
+                        key={index}
+                        className="text-sm text-gray-500"
+                      >
+                        {tech}
+                      </span>
+                    ))}
+                  </div>
+                )}
+                {project.link && (
+                  <a 
+                    href={project.link}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-sm text-gray-600 hover:text-gray-900 mt-1 inline-block"
+                  >
+                    View Project →
+                  </a>
+                )}
               </div>
-            </div>
-          </div>
-        ))}
-      </section>
-
-      {/* Experience Section */}
-      <section className="mb-8">
-        <h2 className="text-xl text-gray-700 mb-4">EXPERIENCE</h2>
-        {experience.map((exp, index) => (
-          <div key={index} className="mb-4">
-            <div className="flex justify-between mb-1">
-              <h3 className="font-medium text-gray-800">
-                {exp.position} | {exp.company}
-              </h3>
-              <p className="text-gray-700">{exp.location} | {exp.startDate} - {exp.endDate}</p>
-            </div>
-            <p className="text-gray-600 italic">{exp.description}</p>
-          </div>
-        ))}
-      </section>
-
-      {/* Skills Section */}
-      <section className="mb-8">
-        <h2 className="text-xl text-gray-700 mb-4">SKILLS</h2>
-        <div className="grid gap-2">
-          <div className="flex">
-            <span className="w-48 font-medium">Programming Languages</span>
-            <span className="text-gray-600">HTML5, CSS3, JAVASCRIPT, PYTHON, FLUTTER</span>
-          </div>
-          <div className="flex">
-            <span className="w-48 font-medium">Libraries/Frameworks</span>
-            <span className="text-gray-600">React.Js, Tailwind CSS, Bootstrap, Node.js GIT</span>
-          </div>
-          <div className="flex">
-            <span className="w-48 font-medium">Tools / Platforms</span>
-            <span className="text-gray-600">GitHub, VS Code, Vercel, Netlify</span>
-          </div>
-          <div className="flex">
-            <span className="w-48 font-medium">Databases</span>
-            <span className="text-gray-600">SQL, MongoDB</span>
+            ))}
           </div>
         </div>
-      </section>
+      )}
 
-      {/* Projects Section */}
-      <section className="mb-8">
-        <h2 className="text-xl text-gray-700 mb-4">PROJECTS / OPEN-SOURCE</h2>
-        {projects.map((project, index) => (
-          <div key={index} className="mb-4">
-            <div className="flex justify-between mb-1">
-              <h3 className="font-medium">
-                PORTFOLIO | <span className="text-gray-600">Link</span>
-              </h3>
-              <span className="text-gray-600">HTML,CSS,JAVASCRIPT</span>
-            </div>
-            <p className="text-gray-600">
-              {project.description}
-            </p>
-          </div>
-        ))}
-      </section>
-
-      {/* Certifications Section */}
-      <section className="mb-8">
-        <h2 className="text-xl text-gray-700 mb-4">CERTIFICATIONS</h2>
-        <ul className="space-y-1">
-          <li className="text-gray-600">• JavaScript - Scaler</li>
-          <li className="text-gray-600">• Tailwind CSS - LetsUpgrade</li>
-          <li className="text-gray-600">• MongoDB - MongoDB - ICT Academy</li>
-          <li className="text-gray-600">• Web development - Udemy</li>
-        </ul>
-      </section>
-
-      {/* Honors & Awards Section */}
-      <section className="mb-8">
-        <h2 className="text-xl text-gray-700 mb-4">HONORS & AWARDS</h2>
-        <ul>
-          <li className="text-gray-600">• I won a cash prize of 1000 for Web Design at Hindusthan College of Arts and Science.</li>
-        </ul>
-      </section>
-
-      {/* Declaration Section */}
-      <section className="mt-8">
-        <h2 className="text-xl text-gray-700 mb-4">Declaration</h2>
-        <p className="text-gray-600 mb-6">
-          "I hereby declare that the information provided in this resume is true and correct to the best of my knowledge and belief. I take full responsibility for the accuracy of the details mentioned."
-        </p>
-        <div className="grid grid-cols-3 gap-4 text-gray-600">
-          <div>
-            <p>Date : {personalInfo.date || '20/11/2024'}</p>
-          </div>
-          <div>
-            <p>Place : {personalInfo.location}</p>
-          </div>
-          <div>
-            <p>Signature : {personalInfo.firstName} {personalInfo.lastName}</p>
+      {/* Languages */}
+      {languages.length > 0 && (
+        <div className="mb-8">
+          <h2 className="text-lg font-medium text-gray-900 mb-3">Languages</h2>
+          <div className="flex flex-wrap gap-4">
+            {languages.map((lang) => (
+              <div key={lang.id} className="text-sm">
+                <span className="text-gray-900">{lang.name}</span>
+                {lang.level && (
+                  <span className="text-gray-500"> - {lang.level}</span>
+                )}
+              </div>
+            ))}
           </div>
         </div>
-      </section>
+      )}
+
+      {/* Certifications */}
+      {certifications.length > 0 && (
+        <div className="mb-8">
+          <h2 className="text-lg font-medium text-gray-900 mb-3">Certifications</h2>
+          <div className="space-y-3">
+            {certifications.map((cert) => (
+              <div key={cert.id}>
+                <h3 className="font-medium text-gray-900">{cert.name}</h3>
+                <p className="text-sm text-gray-600">{cert.issuer} • {cert.date}</p>
+                {cert.description && (
+                  <p className="text-sm text-gray-500 mt-1">{cert.description}</p>
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Other Details */}
+      {others.length > 0 && (
+        <div className="mb-8">
+          <h2 className="text-lg font-medium text-gray-900 mb-3">Additional Information</h2>
+          <div className="space-y-4">
+            {others.map((item) => (
+              <div key={item.id}>
+                <h3 className="font-medium text-gray-900">{item.title}</h3>
+                <p className="text-gray-600 text-sm">{item.description}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Declaration */}
+      {declaration.text && (
+        <div className="mt-8 pt-8 border-t border-gray-200">
+          <h2 className="text-lg font-medium text-gray-900 mb-3">Declaration</h2>
+          <p className="text-gray-600 text-sm mb-4">{declaration.text}</p>
+          <div className="flex justify-between items-end text-sm">
+            <div className="text-gray-500">
+              <p>{declaration.place}</p>
+              <p>{declaration.date}</p>
+            </div>
+            <p className="text-gray-900">{declaration.signature}</p>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

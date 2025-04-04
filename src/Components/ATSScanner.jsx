@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { FaUpload, FaCheckCircle, FaTimesCircle, FaDownload, FaClipboard } from 'react-icons/fa';
+import { FaUpload, FaCheckCircle, FaTimesCircle, FaDownload, FaClipboard, FaChartLine, FaList, FaSearch } from 'react-icons/fa';
 
 const ATSScanner = () => {
   const [file, setFile] = useState(null);
@@ -43,7 +43,13 @@ const ATSScanner = () => {
         },
         format: {
           isGood: true,
-          readability: 'High'
+          readability: 'High',
+          sections: {
+            experience: 90,
+            education: 85,
+            skills: 95,
+            summary: 80
+          }
         },
         suggestions: [
           'Add experience with TypeScript to your resume',
@@ -54,6 +60,55 @@ const ATSScanner = () => {
       });
       setScanning(false);
     }, 2000);
+  };
+
+  // Circular progress component
+  const CircularProgress = ({ percentage, size = 200, strokeWidth = 15 }) => {
+    const radius = (size - strokeWidth) / 2;
+    const circumference = radius * 2 * Math.PI;
+    const offset = circumference - (percentage / 100) * circumference;
+    
+    return (
+      <div className="relative" style={{ width: size, height: size }}>
+        <svg className="transform -rotate-90 w-full h-full">
+          {/* Background circle */}
+          <circle
+            cx={size / 2}
+            cy={size / 2}
+            r={radius}
+            stroke="#e5e7eb"
+            strokeWidth={strokeWidth}
+            fill="none"
+          />
+          {/* Progress circle */}
+          <circle
+            cx={size / 2}
+            cy={size / 2}
+            r={radius}
+            stroke={`url(#gradient-${percentage})`}
+            strokeWidth={strokeWidth}
+            fill="none"
+            strokeLinecap="round"
+            strokeDasharray={circumference}
+            strokeDashoffset={offset}
+            className="transition-all duration-1000 ease-out"
+          />
+          {/* Gradient definition */}
+          <defs>
+            <linearGradient id={`gradient-${percentage}`} x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stopColor={percentage >= 80 ? "#4F46E5" : percentage >= 60 ? "#8B5CF6" : "#EF4444"} />
+              <stop offset="100%" stopColor={percentage >= 80 ? "#818CF8" : percentage >= 60 ? "#A78BFA" : "#F87171"} />
+            </linearGradient>
+          </defs>
+        </svg>
+        <div className="absolute inset-0 flex items-center justify-center flex-col">
+          <span className="text-5xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
+            {percentage}%
+          </span>
+          <span className="text-gray-500 text-sm mt-1">ATS Score</span>
+        </div>
+      </div>
+    );
   };
 
   return (
@@ -131,22 +186,56 @@ const ATSScanner = () => {
             </form>
           </div>
         ) : (
-          <div className="bg-white shadow-xl rounded-xl p-8 max-w-4xl mx-auto">
-            <div className="text-center mb-6">
-              <div className="inline-block rounded-full p-4 bg-indigo-100 mb-4">
-                <div className="text-5xl font-bold bg-gradient-to-r from-purple-600 to-indigo-600 bg-clip-text text-transparent">
-                  {results.score}%
+          <div className="bg-white shadow-xl rounded-xl p-8 max-w-5xl mx-auto">
+            {/* Results Dashboard */}
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
+              {/* Main Score */}
+              <div className="lg:col-span-1 flex flex-col items-center justify-center p-6 bg-gradient-to-br from-white to-indigo-50 rounded-xl shadow-lg">
+                <CircularProgress percentage={results.score} />
+                <div className="mt-4 text-center">
+                  <p className="text-gray-600">
+                    {results.score >= 80 ? 'Excellent Match!' : 
+                     results.score >= 60 ? 'Good Match' : 'Needs Improvement'}
+                  </p>
                 </div>
               </div>
-              <h2 className="text-2xl font-bold text-gray-800">ATS Compatibility Score</h2>
-              <p className="text-gray-600">
-                {results.score >= 80 ? 'Excellent!' : results.score >= 60 ? 'Good, but could be improved' : 'Needs improvement'}
-              </p>
+
+              {/* Section Scores */}
+              <div className="lg:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-4">
+                {Object.entries(results.format.sections).map(([section, score]) => (
+                  <div key={section} className="bg-white p-4 rounded-lg border border-gray-200 shadow-sm">
+                    <div className="flex items-center justify-between mb-2">
+                      <h3 className="text-lg font-semibold capitalize">{section}</h3>
+                      <span className={`px-2 py-1 rounded-full text-sm font-medium ${
+                        score >= 90 ? 'bg-green-100 text-green-800' :
+                        score >= 70 ? 'bg-blue-100 text-blue-800' :
+                        'bg-yellow-100 text-yellow-800'
+                      }`}>
+                        {score}%
+                      </span>
+                    </div>
+                    <div className="w-full bg-gray-200 rounded-full h-2">
+                      <div 
+                        className={`h-2 rounded-full transition-all duration-1000 ${
+                          score >= 90 ? 'bg-green-500' :
+                          score >= 70 ? 'bg-blue-500' :
+                          'bg-yellow-500'
+                        }`}
+                        style={{ width: `${score}%` }}
+                      ></div>
+                    </div>
+                  </div>
+                ))}
+              </div>
             </div>
-            
+
+            {/* Keywords Analysis */}
             <div className="grid md:grid-cols-2 gap-6 mb-8">
-              <div className="bg-indigo-50 p-6 rounded-lg">
-                <h3 className="text-lg font-semibold text-indigo-800 mb-3">Keywords Matched</h3>
+              <div className="bg-gradient-to-br from-green-50 to-emerald-50 p-6 rounded-xl border border-green-100">
+                <div className="flex items-center gap-2 mb-4">
+                  <FaCheckCircle className="text-green-500 text-xl" />
+                  <h3 className="text-lg font-semibold text-green-800">Keywords Matched</h3>
+                </div>
                 <div className="flex flex-wrap gap-2">
                   {results.keywords.matched.map((keyword, index) => (
                     <span key={`matched-${index}`} className="px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm">
@@ -156,8 +245,11 @@ const ATSScanner = () => {
                 </div>
               </div>
               
-              <div className="bg-indigo-50 p-6 rounded-lg">
-                <h3 className="text-lg font-semibold text-indigo-800 mb-3">Missing Keywords</h3>
+              <div className="bg-gradient-to-br from-red-50 to-rose-50 p-6 rounded-xl border border-red-100">
+                <div className="flex items-center gap-2 mb-4">
+                  <FaTimesCircle className="text-red-500 text-xl" />
+                  <h3 className="text-lg font-semibold text-red-800">Missing Keywords</h3>
+                </div>
                 <div className="flex flex-wrap gap-2">
                   {results.keywords.missing.map((keyword, index) => (
                     <span key={`missing-${index}`} className="px-3 py-1 bg-red-100 text-red-800 rounded-full text-sm">
@@ -168,13 +260,17 @@ const ATSScanner = () => {
               </div>
             </div>
             
+            {/* Improvement Suggestions */}
             <div className="mb-8">
-              <h3 className="text-lg font-semibold text-gray-800 mb-3">Improvement Suggestions</h3>
-              <div className="bg-white border border-gray-200 rounded-lg">
+              <div className="flex items-center gap-2 mb-4">
+                <FaList className="text-indigo-500 text-xl" />
+                <h3 className="text-lg font-semibold text-gray-800">Improvement Suggestions</h3>
+              </div>
+              <div className="bg-gradient-to-br from-indigo-50 to-purple-50 rounded-xl border border-indigo-100">
                 {results.suggestions.map((suggestion, index) => (
-                  <div key={index} className={`p-4 ${index !== results.suggestions.length - 1 ? 'border-b border-gray-200' : ''}`}>
+                  <div key={index} className={`p-4 ${index !== results.suggestions.length - 1 ? 'border-b border-indigo-100' : ''}`}>
                     <div className="flex items-start">
-                      <FaCheckCircle className="text-indigo-500 mt-1 mr-3 flex-shrink-0" />
+                      <FaChartLine className="text-indigo-500 mt-1 mr-3 flex-shrink-0" />
                       <p className="text-gray-700">{suggestion}</p>
                     </div>
                   </div>
@@ -182,41 +278,43 @@ const ATSScanner = () => {
               </div>
             </div>
             
+            {/* Action Buttons */}
             <div className="flex flex-wrap justify-center gap-4">
-              <button className="flex items-center px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg font-medium">
+              <button className="flex items-center px-6 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-lg font-medium hover:shadow-lg transition-all duration-300">
                 <FaDownload className="mr-2" /> Download Report
               </button>
               <button 
-                className="flex items-center px-6 py-3 border border-indigo-600 text-indigo-600 hover:bg-indigo-50 rounded-lg font-medium"
+                className="flex items-center px-6 py-3 border-2 border-indigo-600 text-indigo-600 hover:bg-indigo-50 rounded-lg font-medium transition-all duration-300"
                 onClick={() => {
                   setResults(null);
                   setFile(null);
                   setJobDescription('');
                 }}
               >
-                Scan Another Resume
+                <FaSearch className="mr-2" /> Scan Another Resume
               </button>
             </div>
           </div>
         )}
         
+        {/* Features Section */}
         <div className="mt-16 text-center">
           <h3 className="text-2xl font-bold text-gray-800 mb-4">Why Use Our ATS Scanner?</h3>
           
           <div className="grid md:grid-cols-3 gap-8 max-w-4xl mx-auto">
-            <div className="bg-white p-6 rounded-lg shadow-md">
+            <div className="bg-white p-6 rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300">
               <div className="text-indigo-600 text-3xl mb-3">🎯</div>
               <h4 className="text-xl font-semibold mb-2">Keyword Optimization</h4>
               <p className="text-gray-600">Identify missing keywords from the job description to optimize your resume.</p>
             </div>
             
-            <div className="bg-white p-6 rounded-lg shadow-md">
+            <div className="bg-white p-6 rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300">
               <div className="text-indigo-600 text-3xl mb-3">📊</div>
               <h4 className="text-xl font-semibold mb-2">Format Analysis</h4>
               <p className="text-gray-600">Ensure your resume format is ATS-friendly and easily parsed by automated systems.</p>
             </div>
             
-            <div className="bg-white p-6 rounded-lg shadow-md">
+            <div className="bg-white p-6 rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300">
               <div className="text-indigo-600 text-3xl mb-3">🚀</div>
               <h4 className="text-xl font-semibold mb-2">Success Rate</h4>
               <p className="text-gray-600">Candidates who optimize their resumes are 3x more likely to get interviews.</p>

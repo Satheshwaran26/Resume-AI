@@ -1,50 +1,183 @@
-import React from 'react';
-import { FaBars } from 'react-icons/fa';
+import React, { useState, useEffect } from 'react';
+import { FaBars, FaTimes, FaChevronDown } from 'react-icons/fa';
 import { Link } from 'react-router-dom';
+import { motion, AnimatePresence } from 'framer-motion';
 
 const Navbar = () => {
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [activeDropdown, setActiveDropdown] = useState(null);
+  const [isScrolled, setIsScrolled] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 10);
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  const navItems = [
+    { name: 'Home', path: '#home' },
+    { name: 'ATS Scanner', path: '/ats-scanner' },
+    { 
+      name: 'Solutions',
+      path: '#solutions',
+      dropdown: [
+        { name: 'Resume Builder', path: '/resume-builder' },
+        { name: 'Cover Letter', path: '/cover-letter' },
+        { name: 'LinkedIn Optimizer', path: '/linkedin-optimizer' }
+      ]
+    },
+    { name: 'Pricing', path: '#pricing' },
+    { name: 'About', path: '#about' },
+    { name: 'Contact', path: '#contact' }
+  ];
+
   return (
-    
-    <nav className="fixed top-0 left-0 right-0 z-50  mt-8  ">
-      
+    <nav className={`fixed top-0 left-0 right-0 z-50 mt-8 transition-all duration-300 w-full ${isScrolled ? '' : ' bg-white/70'}`}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center h-16 border rounded-3xl backdrop-blur-lg border-indigo-800 p-5">
+        <div className="relative flex justify-between items-center h-16 rounded-2xl border border-gray-400/20 shadow-lg shadow-indigo-500/5 ">
+          {/* Background gradient effect */}
+          <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-purple-50/50 via-white/50 to-indigo-50/50 pointer-events-none"></div>
+
           {/* Logo */}
-          <div className="flex items-center">
-            <a href="/" className="flex items-center space-x-2">
-              <span className="text-2xl font-bold bg-gradient-to-r from-purple-600 to-indigo-600 bg-clip-text text-transparent">
-                ResumeAI
-              </span>
-            </a>
+          <div className="relative flex items-center pl-4">
+            <Link to="/" className="flex items-center space-x-2 group">
+              <div className="relative">
+                <span className="absolute -inset-1 rounded-lg bg-gradient-to-r from-purple-600/20 to-indigo-600/20 blur-sm group-hover:blur-md transition-all duration-300"></span>
+                <span className="relative text-2xl font-bold bg-gradient-to-r from-purple-600 to-indigo-600 bg-clip-text text-transparent group-hover:to-purple-500 transition-all duration-300">
+                  ResumeAI
+                </span>
+              </div>
+            </Link>
           </div>
 
           {/* Desktop Navigation */}
-          <div className="hidden md:flex items-center space-x-8">
-            <a href="#home" className="text-gray-600 hover:text-gray-900">Home</a>
-            <Link to="/ats-scanner" className="text-gray-600 hover:text-gray-900">ATS Scanner</Link>
-            <a href="#solution" className="text-gray-600 hover:text-gray-900">Solution</a>
-            <a href="#pricing" className="text-gray-600 hover:text-gray-900">Pricing</a>
-            <a href="#about" className="text-gray-600 hover:text-gray-900">About us</a>
-            <a href="#contact" className="text-gray-600 hover:text-gray-900">Contact</a>
+          <div className="hidden md:flex items-center space-x-1">
+            {navItems.map((item) => (
+              <div key={item.name} className="relative group">
+                {item.dropdown ? (
+                  <button
+                    className="px-4 py-2 rounded-lg text-gray-600 hover:text-gray-900 font-medium group flex items-center space-x-1 hover:bg-gray-50/80 transition-all duration-200"
+                    onMouseEnter={() => setActiveDropdown(item.name)}
+                    onMouseLeave={() => setActiveDropdown(null)}
+                  >
+                    <span>{item.name}</span>
+                    <FaChevronDown className="w-3 h-3 transform group-hover:rotate-180 transition-transform duration-200" />
+                  </button>
+                ) : (
+                  <Link
+                    to={item.path}
+                    className="px-4 py-2 rounded-lg text-gray-600 hover:text-gray-900 font-medium hover:bg-gray-50/80 transition-all duration-200"
+                  >
+                    {item.name}
+                  </Link>
+                )}
+                
+                {/* Dropdown Menu */}
+                {item.dropdown && activeDropdown === item.name && (
+                  <div
+                    className="absolute top-full left-0 mt-2 w-48 rounded-xl bg-white shadow-lg border border-gray-100 overflow-hidden"
+                    onMouseEnter={() => setActiveDropdown(item.name)}
+                    onMouseLeave={() => setActiveDropdown(null)}
+                  >
+                    <div className="py-2">
+                      {item.dropdown.map((dropdownItem) => (
+                        <Link
+                          key={dropdownItem.name}
+                          to={dropdownItem.path}
+                          className="block px-4 py-2 text-sm text-gray-700 hover:bg-gradient-to-r hover:from-purple-50 hover:to-indigo-50 hover:text-indigo-600 transition-all duration-200"
+                        >
+                          {dropdownItem.name}
+                        </Link>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            ))}
           </div>
 
           {/* Sign Up Buttons */}
-          <div className="hidden md:flex items-center space-x-4">
-            <button className="text-gray-600 hover:text-gray-900 font-medium">
-              Sign up
+          <div className="hidden md:flex items-center space-x-3 pr-4">
+            <button className="px-4 py-2 rounded-lg text-gray-600 hover:text-gray-900 font-medium hover:bg-gray-50/80 transition-all duration-200">
+              Sign in
             </button>
-            <button className="bg-purple-600 text-white px-6 py-2 rounded-lg font-medium hover:bg-purple-700 transition duration-300">
-              Sign up
+            <button className="relative group">
+              <span className="absolute -inset-0.5 rounded-lg bg-gradient-to-r from-purple-600 to-indigo-600 opacity-70 group-hover:opacity-100 blur transition-all duration-300"></span>
+              <span className="relative px-5 py-2 rounded-lg bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-medium inline-block hover:shadow-lg transition-all duration-200">
+                Sign up
+              </span>
             </button>
           </div>
 
           {/* Mobile Menu Button */}
-          <div className="md:hidden">
-            <button className="text-gray-600 hover:text-gray-900 p-2">
-              <FaBars className="h-6 w-6" />
+          <div className="md:hidden relative pr-4">
+            <button
+              className="p-2 rounded-lg text-gray-600 hover:text-gray-900 hover:bg-gray-50/80 transition-all duration-200"
+              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+            >
+              {isMobileMenuOpen ? (
+                <FaTimes className="h-6 w-6" />
+              ) : (
+                <FaBars className="h-6 w-6" />
+              )}
             </button>
           </div>
         </div>
+
+        {/* Mobile Menu */}
+        <AnimatePresence>
+          {isMobileMenuOpen && (
+            <motion.div
+              initial={{ opacity: 0, y: -20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              transition={{ duration: 0.2 }}
+              className="md:hidden absolute left-4 right-4 mt-2 rounded-2xl bg-white shadow-lg border border-gray-200/20 backdrop-blur-xl overflow-hidden"
+            >
+              <div className="px-4 py-6 space-y-4">
+                {navItems.map((item) => (
+                  <div key={item.name}>
+                    {item.dropdown ? (
+                      <>
+                        <button
+                          className="w-full flex justify-between items-center py-2 text-gray-600 hover:text-gray-900 font-medium"
+                          onClick={() => setActiveDropdown(activeDropdown === item.name ? null : item.name)}
+                        >
+                          <span>{item.name}</span>
+                          <FaChevronDown className={`w-3 h-3 transform transition-transform duration-200 ${activeDropdown === item.name ? 'rotate-180' : ''}`} />
+                        </button>
+                        {activeDropdown === item.name && (
+                          <div className="mt-2 ml-4 space-y-2">
+                            {item.dropdown.map((dropdownItem) => (
+                              <Link
+                                key={dropdownItem.name}
+                                to={dropdownItem.path}
+                                className="block py-2 text-sm text-gray-600 hover:text-indigo-600 transition-colors duration-200"
+                              >
+                                {dropdownItem.name}
+                              </Link>
+                            ))}
+                          </div>
+                        )}
+                      </>
+                    ) : (
+                      <Link
+                        to={item.path}
+                        className="block py-2 text-gray-600 hover:text-gray-900 font-medium"
+                        onClick={() => setIsMobileMenuOpen(false)}
+                      >
+                        {item.name}
+                      </Link>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
     </nav>
   );

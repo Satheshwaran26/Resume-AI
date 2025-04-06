@@ -36,8 +36,8 @@ const Hero = () => {
       <div className="absolute inset-0">
         {/* Animated Gradient Orbs */}
         <div className="absolute top-0 left-0 w-full h-full">
-          <div className="absolute top-1/4 left-1/4 w-[800px] h-[800px] bg-blue-100 rounded-full mix-blend-multiply filter blur-3xl opacity-70 animate-blob"></div>
-          <div className="absolute top-1/3 right-1/4 w-[800px] h-[800px] bg-purple-100 rounded-full mix-blend-multiply filter blur-3xl opacity-70 animate-blob animation-delay-2000"></div>
+          <div className="absolute top-24 left-1/4 w-[800px] h-[800px] bg-blue-100 rounded-full mix-blend-multiply filter blur-3xl opacity-70 animate-blob"></div>
+          <div className="absolute top-1/4 right-1/4 w-[800px] h-[800px] bg-purple-100 rounded-full mix-blend-multiply filter blur-3xl opacity-70 animate-blob animation-delay-2000"></div>
           <div className="absolute bottom-1/4 left-1/3 w-[800px] h-[800px] bg-pink-100 rounded-full mix-blend-multiply filter blur-3xl opacity-70 animate-blob animation-delay-4000"></div>
         </div>
         {/* Animated Grid Pattern */}
@@ -46,14 +46,14 @@ const Hero = () => {
 
       {/* Main Content */}
       <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-        {/* Animated Badge */}
-        <div className="inline-flex items-center space-x-2 px-4 py-2 rounded-full bg-blur  mb-6 shadow-sm border border-black/20">
+        
+         <div className="inline-flex items-center font-normal space-x-2 px-4 py-2 rounded-full bg-blur  mb-6 shadow-sm border border-gray-400/20">
           <FaFileAlt className="h-4 w-4" />
-          <span className="text-base font-extralight">AI-Powered Resume Builder</span>
+          <span className="text-sm font-light">AI-Powered Resume Builder</span>
         </div>
 
         {/* Animated Main Heading */}
-        <h1 className="text-7xl md:text-8xl font-extralight text-gray-900 mb-8 leading-tight animate-slide-up">
+        <h1 className="text-[3.3em] md:text-8xl max-w-7xl font-extralight text-gray-900 mb-8 leading-tight animate-slide-up">
           Create Your Perfect Resume with{' '}
           <span className="bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 bg-clip-text text-transparent animate-gradient">
             AI

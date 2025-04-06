@@ -28,6 +28,7 @@ function App() {
           <Route path="/ats-scanner" element={<ATSScanner />} />
           <Route path="/" element={
             <>
+            
               <Hero />
               <ModernTemplatesShowcase />
               <FeaturesSection />

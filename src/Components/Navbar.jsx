@@ -18,26 +18,28 @@ const Navbar = () => {
   }, []);
 
   const navItems = [
-    { name: 'Home', path: '#home' },
+    { name: 'About', path: '#about' },
+  
     { name: 'ATS Scanner', path: '/ats-scanner' },
     { 
-      name: 'Solutions',
+      name: 'Resume Building' ,
       path: '#solutions',
       dropdown: [
-        { name: 'Resume Builder', path: '/resume-builder' },
-        { name: 'Cover Letter', path: '/cover-letter' },
-        { name: 'LinkedIn Optimizer', path: '/linkedin-optimizer' }
+        { name: 'AI Resume', path: '/resume-builder' },
+        { name: 'Manual Resume ', path: '/cover-letter' },
+        
       ]
     },
-    { name: 'Pricing', path: '#pricing' },
-    { name: 'About', path: '#about' },
+    { name: 'Blog', path: '#pricing' },
+    
+
     { name: 'Contact', path: '#contact' }
   ];
 
   return (
-    <nav className={`fixed top-0 left-0 right-0 z-50 mt-8 transition-all duration-300 w-full ${isScrolled ? '' : ' bg-white/70'}`}>
+    <nav className={`fixed top-0 left-0 right-0 z-50 lg:mt-8 mt-4 transition-all duration-300 w-full `}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="relative flex justify-between items-center h-16 rounded-2xl border border-gray-400/20 shadow-lg shadow-indigo-500/5 ">
+        <div className="relative flex justify-between items-center h-16 rounded-2xl border border-gray-400/20 shadow-lg shadow-indigo-500/5 backdrop-blur-xl ">
           {/* Background gradient effect */}
           <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-purple-50/50 via-white/50 to-indigo-50/50 pointer-events-none"></div>
 
@@ -45,9 +47,9 @@ const Navbar = () => {
           <div className="relative flex items-center pl-4">
             <Link to="/" className="flex items-center space-x-2 group">
               <div className="relative">
-                <span className="absolute -inset-1 rounded-lg bg-gradient-to-r from-purple-600/20 to-indigo-600/20 blur-sm group-hover:blur-md transition-all duration-300"></span>
-                <span className="relative text-2xl font-bold bg-gradient-to-r from-purple-600 to-indigo-600 bg-clip-text text-transparent group-hover:to-purple-500 transition-all duration-300">
-                  ResumeAI
+               
+                <span className="relative text-2xl font-light bg-gradient-to-r from-purple-600 to-indigo-600 bg-clip-text text-transparent group-hover:to-purple-500 transition-all duration-300">
+                  Resume AI
                 </span>
               </div>
             </Link>
@@ -69,7 +71,7 @@ const Navbar = () => {
                 ) : (
                   <Link
                     to={item.path}
-                    className="px-4 py-2 rounded-lg text-gray-600 hover:text-gray-900 font-medium hover:bg-gray-50/80 transition-all duration-200"
+                    className="px-4 py-2 rounded-lg text-gray-600 hover:text-gray-900 font-medium transition-all duration-200"
                   >
                     {item.name}
                   </Link>
@@ -99,21 +101,17 @@ const Navbar = () => {
             ))}
           </div>
 
-          {/* Sign Up Buttons */}
-          <div className="hidden md:flex items-center space-x-3 pr-4">
-            <button className="px-4 py-2 rounded-lg text-gray-600 hover:text-gray-900 font-medium hover:bg-gray-50/80 transition-all duration-200">
-              Sign in
-            </button>
-            <button className="relative group">
-              <span className="absolute -inset-0.5 rounded-lg bg-gradient-to-r from-purple-600 to-indigo-600 opacity-70 group-hover:opacity-100 blur transition-all duration-300"></span>
-              <span className="relative px-5 py-2 rounded-lg bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-medium inline-block hover:shadow-lg transition-all duration-200">
-                Sign up
-              </span>
-            </button>
-          </div>
+ {/* Sign Up Buttons */}
+<div className="hidden md:flex items-center space-x-3 pr-4">
+  <button className="relative group">
+    <span className="relative px-5 py-2 rounded-lg bg-indigo-600 text-white  font-medium inline-block  text-base">
+      Create Resume
+    </span>
+  </button>
+</div>
 
           {/* Mobile Menu Button */}
-          <div className="md:hidden relative pr-4">
+          <div className="md:hidden relative pr-4 ">
             <button
               className="p-2 rounded-lg text-gray-600 hover:text-gray-900 hover:bg-gray-50/80 transition-all duration-200"
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}

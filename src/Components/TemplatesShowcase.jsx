@@ -1,14 +1,14 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { FaStar, FaArrowRight, FaChevronLeft, FaChevronRight } from 'react-icons/fa';
+import { FaStar, FaArrowRight, FaChevronLeft, FaChevronRight, FaFileAlt } from 'react-icons/fa';
 
 const TemplatesShowcase = () => {
   const [activeTemplate, setActiveTemplate] = useState(0);
   const [isHovering, setIsHovering] = useState(false);
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
   const showcaseRef = useRef(null);
-  
+
   // Template data with high-quality resume images
   const templates = [
     {
@@ -70,18 +70,18 @@ const TemplatesShowcase = () => {
         setActiveTemplate((prev) => (prev + 1) % templates.length);
       }
     }, 5000);
-    
+
     return () => clearInterval(interval);
   }, [isHovering, templates.length]);
 
   // Track mouse position for 3D effect
   const handleMouseMove = (e) => {
     if (!showcaseRef.current) return;
-    
+
     const rect = showcaseRef.current.getBoundingClientRect();
     const x = (e.clientX - rect.left) / rect.width;
     const y = (e.clientY - rect.top) / rect.height;
-    
+
     setMousePosition({ x, y });
   };
 
@@ -89,7 +89,7 @@ const TemplatesShowcase = () => {
   const getTransform = () => {
     const rotateX = (mousePosition.y - 0.5) * 10; // -5 to 5 degrees
     const rotateY = (mousePosition.x - 0.5) * -10; // -5 to 5 degrees
-    
+
     return `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
   };
 
@@ -103,54 +103,39 @@ const TemplatesShowcase = () => {
   };
 
   return (
-    <section className="py-24 relative overflow-hidden bg-gradient-to-br from-gray-50 to-white">
-      {/* Animated background elements */}
-      <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute -top-40 -left-40 w-80 h-80 bg-blue-300 rounded-full mix-blend-multiply filter blur-3xl opacity-10 animate-blob"></div>
-        <div className="absolute top-0 -right-20 w-80 h-80 bg-purple-300 rounded-full mix-blend-multiply filter blur-3xl opacity-10 animate-blob animation-delay-2000"></div>
-        <div className="absolute bottom-40 left-1/2 w-80 h-80 bg-pink-300 rounded-full mix-blend-multiply filter blur-3xl opacity-10 animate-blob animation-delay-4000"></div>
+    <section className="relative py-16 overflow-hidden bg-white">
+      {/* Animated Background Elements - Matching Hero section */}
+      <div className="absolute inset-0">
+        {/* Animated Gradient Orbs */}
+        <div className="absolute top-0 left-0 w-full h-full">
+          <div className="absolute top-1/4 left-1/4 w-[800px] h-[800px] bg-blue-100 rounded-full mix-blend-multiply filter blur-3xl opacity-70 animate-blob"></div>
+          <div className="absolute top-1/3 right-1/4 w-[800px] h-[800px] bg-purple-100 rounded-full mix-blend-multiply filter blur-3xl opacity-70 animate-blob animation-delay-2000"></div>
+          <div className="absolute bottom-1/4 left-1/3 w-[800px] h-[800px] bg-pink-100 rounded-full mix-blend-multiply filter blur-3xl opacity-70 animate-blob animation-delay-4000"></div>
+        </div>
+        {/* Animated Grid Pattern */}
+        <div className="absolute inset-0 bg-[linear-gradient(to_right,#4f46e5_1px,transparent_1px),linear-gradient(to_bottom,#4f46e5_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_80%_80%_at_50%_50%,#000_70%,transparent_110%)] opacity-5"></div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-        {/* Section Header */}
-        <motion.div 
-          className="text-center mb-20"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
-        >
-          <motion.span 
-            className="inline-block px-4 py-1 rounded-full bg-indigo-100 text-indigo-700 text-sm font-medium mb-4"
-            initial={{ opacity: 0, scale: 0.8 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.4 }}
-          >
-            Professional Templates
-          </motion.span>
+      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 z-10">
+        {/* Section Header - Matching Hero style */}
+        <div className="text-center mb-20">
+          <div className="inline-flex items-center font-normal space-x-2 px-4 py-2 rounded-full bg-blur mb-6 shadow-sm border border-gray-400/20">
+            <FaFileAlt className="h-4 w-4" />
+            <span className="text-sm font-light">Professional Resume Templates</span>
+          </div>
           
-          <motion.h2 
-            className="text-4xl md:text-5xl font-bold mb-6"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.1 }}
-          >
-            <span className="bg-clip-text text-transparent bg-gradient-to-r from-indigo-600 via-blue-600 to-purple-600">
-              Resume Templates That Get You Hired
-            </span>
-          </motion.h2>
-          
-          <motion.p 
-            className="text-xl text-gray-600 max-w-3xl mx-auto"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.2 }}
-          >
+          <h2 className="text-[2.5em] md:text-6xl font-extralight text-gray-900 mb-6 leading-tight animate-slide-up">
+            Resume Templates That Get You 
+            <span className="bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 bg-clip-text text-transparent animate-gradient"> Hired</span>
+          </h2>
+
+          <p className="text-lg text-gray-600 max-w-3xl mx-auto font-light animate-slide-up animation-delay-200">
             Stand out with professionally designed templates that catch recruiters' attention
-          </motion.p>
-        </motion.div>
+          </p>
+        </div>
 
         {/* 3D Showcase Container */}
-        <div 
+        <div
           ref={showcaseRef}
           className="relative h-[550px] mb-16"
           onMouseMove={handleMouseMove}
@@ -165,11 +150,11 @@ const TemplatesShowcase = () => {
                 const isActive = position === 0;
                 const isNext = position === 1;
                 const isPrev = position === templates.length - 1;
-                
+
                 // Calculate offset for carousel effect
                 let xOffset = 0;
                 let zOffset = 0;
-                
+
                 if (isActive) {
                   xOffset = 0;
                   zOffset = 0;
@@ -186,13 +171,13 @@ const TemplatesShowcase = () => {
                   xOffset = -550;
                   zOffset = -200;
                 }
-                
+
                 return (
                   <motion.div
                     key={template.id}
                     className="absolute w-[340px] md:w-[400px] transition-all duration-500"
                     initial={{ opacity: 0 }}
-                    animate={{ 
+                    animate={{
                       x: xOffset,
                       z: zOffset,
                       opacity: isActive ? 1 : isNext || isPrev ? 0.8 : 0.4,
@@ -207,47 +192,22 @@ const TemplatesShowcase = () => {
                       zIndex: isActive ? 30 : isNext || isPrev ? 20 : 10,
                     }}
                   >
-                    <div className={`bg-white rounded-2xl overflow-hidden shadow-2xl ${
-                      isActive ? 'ring-4 ring-blue-500/50 shadow-blue-200/30' : ''
-                    } transition-all duration-300`}>
-                      {/* Template Image with glass morphism overlay */}
+                    <div className={`bg-white rounded-2xl overflow-hidden shadow-2xl ${isActive ? 'ring-4 ring-indigo-500/50 shadow-indigo-200/30' : ''
+                      } transition-all duration-300`}>
+                      {/* Template Image with hover overlay */}
                       <div className="relative group">
-                        <img 
-                          src={template.image} 
+                        <img
+                          src={template.image}
                           alt={`${template.name} resume template`}
                           className="w-full h-auto object-cover"
                         />
-                        
-                        {/* Popular Badge with animated gradient */}
-                        {template.popular && (
-                          <div className="absolute top-4 right-4 px-3 py-1 bg-gradient-to-r from-amber-500 to-orange-500 text-white text-xs font-semibold rounded-full shadow-lg animate-pulse-slow">
-                            <div className="flex items-center gap-1">
-                              <FaStar className="w-3 h-3" />
-                              <span>Popular Choice</span>
-                            </div>
-                          </div>
-                        )}
-                        
-                        {/* Category Badge */}
-                        <div className="absolute top-4 left-4 px-3 py-1 bg-white/90 backdrop-blur-sm text-gray-800 text-xs font-medium rounded-full shadow-sm">
-                          {template.category}
-                        </div>
-                        
-                        {/* Hover Overlay with glass effect */}
+
+                        {/* Hover Overlay - Matching Hero styling */}
                         {isActive && (
-                          <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 backdrop-blur-sm flex flex-col justify-end p-6">
-                            <h3 className="text-2xl font-bold text-white mb-2">{template.name}</h3>
-                            <p className="text-white/80 mb-4">{template.description}</p>
-                            <div className="flex flex-wrap gap-2 mb-4">
-                              {template.features.map((feature, i) => (
-                                <span key={i} className="px-2 py-1 bg-white/20 backdrop-blur-sm text-white text-xs rounded-full">
-                                  {feature}
-                                </span>
-                              ))}
-                            </div>
+                          <div className="absolute inset-0 bg-gradient-to-t from-indigo-900/80 via-indigo-800/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
                             <Link
                               to={`/resume-builder/${template.id}`}
-                              className="w-full py-3 bg-gradient-to-r from-blue-500 to-indigo-600 text-white font-medium rounded-lg text-center hover:shadow-lg transform hover:scale-105 hover:from-blue-600 hover:to-indigo-700 transition-all duration-300"
+                              className="px-6 py-3 rounded-lg font-medium text-white bg-indigo-600 hover:bg-indigo-700 transition duration-200"
                             >
                               Use This Template
                             </Link>
@@ -260,17 +220,17 @@ const TemplatesShowcase = () => {
               })}
             </AnimatePresence>
           </div>
-          
+
           {/* Navigation Controls */}
           <div className="absolute inset-y-0 left-0 right-0 flex items-center justify-between pointer-events-none">
-            <button 
+            <button
               onClick={prevTemplate}
               className="pointer-events-auto ml-4 p-2 rounded-full bg-white/80 backdrop-blur-sm text-gray-800 shadow-lg hover:bg-white hover:scale-110 transition-all duration-300"
               aria-label="Previous template"
             >
               <FaChevronLeft className="w-5 h-5" />
             </button>
-            <button 
+            <button
               onClick={nextTemplate}
               className="pointer-events-auto mr-4 p-2 rounded-full bg-white/80 backdrop-blur-sm text-gray-800 shadow-lg hover:bg-white hover:scale-110 transition-all duration-300"
               aria-label="Next template"
@@ -278,54 +238,60 @@ const TemplatesShowcase = () => {
               <FaChevronRight className="w-5 h-5" />
             </button>
           </div>
-          
+
           {/* Template Indicators */}
-          <div className="absolute bottom-4 left-0 right-0 flex justify-center gap-2">
+          <div className="absolute -bottom-10 left-0 right-0 flex justify-center gap-2">
             {templates.map((_, index) => (
               <button
                 key={index}
                 onClick={() => setActiveTemplate(index)}
-                className={`w-2 h-2 rounded-full transition-all duration-300 ${
-                  index === activeTemplate 
-                    ? 'bg-indigo-600 w-8' 
+                className={`w-2 h-2 rounded-full transition-all duration-300 ${index === activeTemplate
+                    ? 'bg-indigo-600 w-8'
                     : 'bg-gray-300 hover:bg-gray-400'
-                }`}
+                  }`}
                 aria-label={`Go to template ${index + 1}`}
               />
             ))}
           </div>
         </div>
 
-        {/* CTA Section */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.4, duration: 0.6 }}
-          className="text-center"
-        >
+        {/* Feature badges - Matching Hero style */}
+        <div className="flex flex-wrap justify-center gap-6 text-gray-700 mt-16 mb-10">
+          <div className="flex items-center space-x-3 px-4 py-2 rounded-lg shadow-sm">
+            <div className="p-2 rounded-full bg-indigo-100 text-indigo-600">
+              <FaStar className="w-4 h-4" />
+            </div>
+            <span className="font-medium">100+ Templates</span>
+          </div>
+          <div className="flex items-center space-x-3 px-4 py-2 rounded-lg shadow-sm">
+            <div className="p-2 rounded-full bg-indigo-100 text-indigo-600">
+              <FaStar className="w-4 h-4" />
+            </div>
+            <span className="font-medium">ATS-Friendly</span>
+          </div>
+          <div className="flex items-center space-x-3 px-4 py-2 rounded-lg shadow-sm">
+            <div className="p-2 rounded-full bg-indigo-100 text-indigo-600">
+              <FaStar className="w-4 h-4" />
+            </div>
+            <span className="font-medium">Easy Customization</span>
+          </div>
+        </div>
+
+        {/* CTA Section - Matching Hero style */}
+        <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mt-6">
           <Link
             to="/templates"
-            className="group relative inline-flex items-center justify-center px-8 py-4 text-lg font-medium text-white bg-gradient-to-r from-indigo-600 via-blue-600 to-indigo-600 bg-size-200 bg-pos-0 hover:bg-pos-100 rounded-full overflow-hidden shadow-lg hover:shadow-indigo-500/30 transition-all duration-500"
+            className="px-6 py-3 rounded-lg font-medium text-white bg-indigo-600 hover:bg-indigo-700 transition duration-200"
           >
-            <span className="absolute w-0 h-0 transition-all duration-500 ease-out bg-white rounded-full group-hover:w-64 group-hover:h-64 opacity-10"></span>
-            <span className="relative">Browse All Templates</span>
-            <FaArrowRight className="ml-2 w-5 h-5 transition-transform group-hover:translate-x-1" />
+            Browse All Templates
           </Link>
-            <div className="mt-6 flex items-center justify-center gap-6 text-gray-500">
-            <div className="flex items-center gap-2">
-              <span className="w-2 h-2 bg-gradient-to-r from-indigo-600 to-purple-600 rounded-full"></span>
-              <span>100+ Templates</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <span className="w-2 h-2 bg-gradient-to-r from-purple-600 to-pink-600 rounded-full"></span>
-              <span>ATS-Friendly</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <span className="w-2 h-2 bg-gradient-to-r from-pink-600 to-indigo-600 rounded-full"></span>
-              <span>Easy Customization</span>
-            </div>
-          </div>
-        </motion.div>
+          <Link
+            to="/builder"
+            className="px-6 py-3 rounded-lg font-medium text-indigo-600 border border-indigo-600 hover:bg-indigo-50 transition duration-200"
+          >
+            Start Building Your Resume
+          </Link>
+        </div>
       </div>
     </section>
   );

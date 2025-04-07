@@ -13,217 +13,257 @@ const ModernMinimal = ({ data }) => {
     others
   } = data;
 
+  // Check if sections are empty
+  const isEmptyPersonalInfo = !personalInfo.firstName && !personalInfo.lastName && !personalInfo.title;
+  const isEmptyExperience = experience.length === 0 || !experience[0].company;
+  const isEmptyEducation = education.length === 0 || !education[0].institution;
+  const isEmptySkills = skills.length === 0 || !skills[0].name;
+
   return (
-    <div className="min-h-[1056px] bg-white">
+    <div className="resume-page flex flex-col p-8 bg-white">
       {/* Header */}
-      <div className="bg-gray-900 text-white px-8 py-12">
-        <div className="max-w-4xl mx-auto">
-          <h1 className="text-4xl font-light mb-2">
-            {personalInfo.firstName} {personalInfo.lastName}
-          </h1>
-          <p className="text-xl text-gray-300 mb-6">{personalInfo.title}</p>
-          <div className="flex flex-wrap gap-6 text-gray-400 text-sm">
-            {personalInfo.email && (
-              <div className="flex items-center gap-2">
-                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                </svg>
-                {personalInfo.email}
-              </div>
-            )}
-            {personalInfo.phone && (
-              <div className="flex items-center gap-2">
-                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
-                </svg>
-                {personalInfo.phone}
-              </div>
-            )}
-            {personalInfo.address && (
-              <div className="flex items-center gap-2">
-                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                </svg>
-                {personalInfo.address}
-              </div>
-            )}
-          </div>
+      <header className="mb-6 border-b-2 border-resume-accent-blue pb-4">
+        <h1 className="text-3xl font-display font-bold text-resume-navy">
+          {isEmptyPersonalInfo 
+            ? "John Doe"
+            : `${personalInfo.firstName || ''} ${personalInfo.lastName || ''}`}
+        </h1>
+        <h2 className="text-xl text-resume-accent-blue mt-1 font-medium">
+          {personalInfo.title || "Professional Title"}
+        </h2>
+        
+        <div className="flex flex-wrap justify-between text-sm mt-3 text-resume-slate">
+          <span>{personalInfo.email || "email@example.com"}</span>
+          <span>{personalInfo.phone || "(123) 456-7890"}</span>
+          <span>
+            {personalInfo.city && personalInfo.state 
+              ? `${personalInfo.city}, ${personalInfo.state}`
+              : personalInfo.address || "City, State"
+            }
+          </span>
+          <span>linkedin.com/in/johndoe</span>
         </div>
-      </div>
+      </header>
 
-      {/* Main Content */}
-      <div className="max-w-4xl mx-auto px-8 py-12">
-        {/* Professional Summary */}
-        {personalInfo.summary && (
-          <div className="mb-12">
-            <p className="text-gray-600 leading-relaxed">{personalInfo.summary}</p>
-          </div>
-        )}
+      <div className="flex flex-col space-y-6">
+        {/* Summary Section */}
+        <section>
+          <h3 className="text-lg font-bold text-resume-navy border-b border-resume-light-gray pb-1 mb-3">
+            Professional Summary
+          </h3>
+          <p className="text-resume-slate">
+            {personalInfo.summary || 
+              <span className="text-gray-400 italic">
+                Innovative and deadline-driven professional with experience in your field. Add a brief 2-3 sentence overview of your background and key strengths.
+              </span>
+            }
+          </p>
+        </section>
 
-        {/* Experience */}
-        {experience.length > 0 && (
-          <div className="mb-12">
-            <h2 className="text-2xl font-light text-gray-900 mb-6">Experience</h2>
-            <div className="space-y-8">
-              {experience.map((exp) => (
-                <div key={exp.id} className="relative pl-8 before:absolute before:left-0 before:top-2 before:w-2 before:h-2 before:bg-gray-300 before:rounded-full">
-                  <div className="mb-2">
-                    <h3 className="text-lg font-medium text-gray-900">{exp.position}</h3>
-                    <p className="text-gray-600">{exp.company}</p>
-                    <p className="text-sm text-gray-500">
+        {/* Experience Section */}
+        <section>
+          <h3 className="text-lg font-bold text-resume-navy border-b border-resume-light-gray pb-1 mb-3">
+            Work Experience
+          </h3>
+
+          <div className="space-y-4">
+            {!isEmptyExperience ? (
+              // Render actual experience data
+              experience.map((exp) => (
+                <div key={exp.id}>
+                  <div className="flex justify-between items-baseline">
+                    <h4 className="font-bold">{exp.position}</h4>
+                    <span className="text-sm text-resume-slate">
                       {exp.startDate} - {exp.current ? 'Present' : exp.endDate}
-                    </p>
+                    </span>
                   </div>
-                  <p className="text-gray-600">{exp.description}</p>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* Education */}
-        {education.length > 0 && (
-          <div className="mb-12">
-            <h2 className="text-2xl font-light text-gray-900 mb-6">Education</h2>
-            <div className="space-y-6">
-              {education.map((edu) => (
-                <div key={edu.id} className="relative pl-8 before:absolute before:left-0 before:top-2 before:w-2 before:h-2 before:bg-gray-300 before:rounded-full">
-                  <div className="mb-2">
-                    <h3 className="text-lg font-medium text-gray-900">{edu.degree}</h3>
-                    <p className="text-gray-600">{edu.institution}</p>
-                    <p className="text-sm text-gray-500">
-                      {edu.startDate} - {edu.current ? 'Present' : edu.endDate}
-                    </p>
-                  </div>
-                  {edu.description && (
-                    <p className="text-gray-600">{edu.description}</p>
+                  <h5 className="text-resume-accent-blue font-medium">{exp.company}</h5>
+                  {exp.description && <p className="mt-1 text-resume-slate">{exp.description}</p>}
+                  {exp.achievements && exp.achievements.length > 0 && exp.achievements[0] !== '' && (
+                    <ul className="list-disc ml-5 mt-2 space-y-1 text-resume-slate">
+                      {exp.achievements.map((achievement, index) => (
+                        <li key={index}>{achievement}</li>
+                      ))}
+                    </ul>
                   )}
                 </div>
-              ))}
-            </div>
+              ))
+            ) : (
+              // Render placeholder experience
+              <div className="text-gray-400 italic">
+                <div className="flex justify-between items-baseline">
+                  <h4 className="font-bold">Position Title</h4>
+                  <span className="text-sm">20XX - Present</span>
+                </div>
+                <h5 className="text-resume-accent-blue font-medium">Company Name</h5>
+                <ul className="list-disc ml-5 mt-2 space-y-1">
+                  <li>Key responsibility or achievement 1</li>
+                  <li>Key responsibility or achievement 2</li>
+                  <li>Key responsibility or achievement 3</li>
+                </ul>
+              </div>
+            )}
           </div>
-        )}
+        </section>
 
-        {/* Two Column Layout for Skills and Languages */}
-        <div className="grid grid-cols-2 gap-12 mb-12">
-          {/* Skills */}
-          {skills && skills.length > 0 && (
-            <div>
-              <h2 className="text-2xl font-light text-gray-900 mb-4">Skills</h2>
-              <div className="flex flex-wrap gap-2">
-                {skills.map((skill) => (
+        {/* Education Section */}
+        <section>
+          <h3 className="text-lg font-bold text-resume-navy border-b border-resume-light-gray pb-1 mb-3">
+            Education
+          </h3>
+          
+          {!isEmptyEducation ? (
+            // Render actual education data
+            education.map((edu) => (
+              <div key={edu.id} className="flex justify-between">
+                <div>
+                  <h4 className="font-bold">{edu.degree} {edu.field && `in ${edu.field}`}</h4>
+                  <h5 className="text-resume-slate">{edu.institution}</h5>
+                  {edu.description && <p className="text-resume-slate mt-1">{edu.description}</p>}
+                </div>
+                <span className="text-sm text-resume-slate">
+                  {edu.startDate} - {edu.current ? 'Present' : edu.endDate}
+                </span>
+              </div>
+            ))
+          ) : (
+            // Render placeholder education
+            <div className="flex justify-between text-gray-400 italic">
+              <div>
+                <h4 className="font-bold">B.S. Computer Science</h4>
+                <h5>University of Technology</h5>
+              </div>
+              <span className="text-sm">20XX - 20XX</span>
+            </div>
+          )}
+        </section>
+
+        {/* Skills Section */}
+        <section>
+          <h3 className="text-lg font-bold text-resume-navy border-b border-resume-light-gray pb-1 mb-3">
+            Technical Skills
+          </h3>
+          
+          {!isEmptySkills ? (
+            // Render actual skills data
+            <div className="flex flex-wrap gap-2">
+              {skills.map((skill) => (
+                skill.name && (
                   <span 
-                    key={skill.id}
-                    className="px-3 py-1 bg-gray-100 text-gray-700 rounded-full text-sm"
+                    key={skill.id} 
+                    className="bg-resume-light-gray rounded px-3 py-1 text-sm text-resume-slate"
                   >
                     {skill.name}
                   </span>
-                ))}
-              </div>
+                )
+              ))}
+            </div>
+          ) : (
+            // Render placeholder skills
+            <div className="flex flex-wrap gap-2 text-gray-400 italic">
+              <span className="bg-resume-light-gray rounded px-3 py-1 text-sm">JavaScript</span>
+              <span className="bg-resume-light-gray rounded px-3 py-1 text-sm">TypeScript</span>
+              <span className="bg-resume-light-gray rounded px-3 py-1 text-sm">React</span>
+              <span className="bg-resume-light-gray rounded px-3 py-1 text-sm">Node.js</span>
+              <span className="bg-resume-light-gray rounded px-3 py-1 text-sm">Express</span>
+              <span className="bg-resume-light-gray rounded px-3 py-1 text-sm">MongoDB</span>
             </div>
           )}
+        </section>
 
-          {/* Languages */}
-          {languages.length > 0 && (
-            <div>
-              <h2 className="text-2xl font-light text-gray-900 mb-4">Languages</h2>
-              <div className="space-y-2">
-                {languages.map((lang) => (
-                  <div key={lang.id} className="flex justify-between">
-                    <span className="text-gray-700">{lang.name}</span>
-                    {lang.level && (
-                      <span className="text-gray-500">{lang.level}</span>
+        {/* Projects Section (if not empty) */}
+        {projects && projects.length > 0 && projects[0].name && (
+          <section>
+            <h3 className="text-lg font-bold text-resume-navy border-b border-resume-light-gray pb-1 mb-3">
+              Projects
+            </h3>
+            <div className="space-y-3">
+              {projects.map((project) => (
+                <div key={project.id}>
+                  <div className="flex justify-between items-baseline">
+                    <h4 className="font-bold">{project.name}</h4>
+                    {project.link && (
+                      <a 
+                        href={project.link} 
+                        target="_blank" 
+                        rel="noopener noreferrer" 
+                        className="text-sm text-resume-accent-blue underline"
+                      >
+                        View Project
+                      </a>
                     )}
                   </div>
-                ))}
-              </div>
-            </div>
-          )}
-        </div>
-
-        {/* Projects */}
-        {projects.length > 0 && (
-          <div className="mb-12">
-            <h2 className="text-2xl font-light text-gray-900 mb-6">Projects</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {projects.map((project) => (
-                <div key={project.id} className="bg-gray-50 p-6 rounded-lg">
-                  <h3 className="text-lg font-medium text-gray-900 mb-2">{project.name}</h3>
-                  <p className="text-gray-600 mb-4">{project.description}</p>
-                  {project.technologies.length > 0 && (
-                    <div className="flex flex-wrap gap-2 mb-4">
+                  <p className="text-resume-slate mt-1">{project.description}</p>
+                  {project.technologies && project.technologies.length > 0 && project.technologies[0] !== '' && (
+                    <div className="flex flex-wrap gap-2 mt-1">
                       {project.technologies.map((tech, index) => (
                         <span 
                           key={index}
-                          className="text-sm text-gray-500"
+                          className="bg-resume-light-gray rounded px-2 py-0.5 text-xs text-resume-slate"
                         >
                           {tech}
                         </span>
                       ))}
                     </div>
                   )}
-                  {project.link && (
-                    <a 
-                      href={project.link}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-sm text-gray-900 hover:text-gray-600 transition-colors"
-                    >
-                      View Project →
-                    </a>
-                  )}
                 </div>
               ))}
             </div>
-          </div>
+          </section>
         )}
 
-        {/* Certifications */}
-        {certifications.length > 0 && (
-          <div className="mb-12">
-            <h2 className="text-2xl font-light text-gray-900 mb-6">Certifications</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {/* Languages Section (if not empty) */}
+        {languages && languages.length > 0 && languages[0].name && (
+          <section>
+            <h3 className="text-lg font-bold text-resume-navy border-b border-resume-light-gray pb-1 mb-3">
+              Languages
+            </h3>
+            <div className="flex flex-wrap gap-4">
+              {languages.map((language) => (
+                <span key={language.id} className="text-resume-slate">
+                  {language.name} {language.level && `(${language.level})`}
+                </span>
+              ))}
+            </div>
+          </section>
+        )}
+
+        {/* Certifications Section (if not empty) */}
+        {certifications && certifications.length > 0 && certifications[0].name && (
+          <section>
+            <h3 className="text-lg font-bold text-resume-navy border-b border-resume-light-gray pb-1 mb-3">
+              Certifications
+            </h3>
+            <div className="space-y-2">
               {certifications.map((cert) => (
-                <div key={cert.id} className="bg-gray-50 p-6 rounded-lg">
-                  <h3 className="text-lg font-medium text-gray-900">{cert.name}</h3>
-                  <p className="text-gray-600">{cert.issuer} • {cert.date}</p>
-                  {cert.description && (
-                    <p className="text-gray-500 mt-2">{cert.description}</p>
-                  )}
+                <div key={cert.id}>
+                  <div className="flex justify-between items-baseline">
+                    <h4 className="font-bold">{cert.name}</h4>
+                    <span className="text-sm text-resume-slate">{cert.date}</span>
+                  </div>
+                  <p className="text-resume-accent-blue">{cert.issuer}</p>
+                  {cert.description && <p className="text-resume-slate text-sm">{cert.description}</p>}
                 </div>
               ))}
             </div>
-          </div>
+          </section>
         )}
 
-        {/* Other Details */}
-        {others.length > 0 && (
-          <div className="mb-12">
-            <h2 className="text-2xl font-light text-gray-900 mb-6">Additional Information</h2>
-            <div className="space-y-6">
+        {/* Additional Information Section (if not empty) */}
+        {others && others.length > 0 && others[0].title && (
+          <section>
+            <h3 className="text-lg font-bold text-resume-navy border-b border-resume-light-gray pb-1 mb-3">
+              Additional Information
+            </h3>
+            <div className="space-y-3">
               {others.map((item) => (
-                <div key={item.id} className="bg-gray-50 p-6 rounded-lg">
-                  <h3 className="text-lg font-medium text-gray-900 mb-2">{item.title}</h3>
-                  <p className="text-gray-600">{item.description}</p>
+                <div key={item.id}>
+                  <h4 className="font-bold">{item.title}</h4>
+                  <p className="text-resume-slate">{item.description}</p>
                 </div>
               ))}
             </div>
-          </div>
-        )}
-
-        {/* Declaration */}
-        {declaration.text && (
-          <div className="mt-12 pt-12 border-t border-gray-200">
-            <p className="text-gray-600 mb-6">{declaration.text}</p>
-            <div className="flex justify-between items-end">
-              <div className="text-gray-500">
-                <p>{declaration.place}</p>
-                <p>{declaration.date}</p>
-              </div>
-              <p className="text-gray-900 font-medium">{declaration.signature}</p>
-            </div>
-          </div>
+          </section>
         )}
       </div>
     </div>

@@ -5,7 +5,6 @@ import Navbar from './Components/Navbar';
 import Hero from './Components/Hero';
 import ModernTemplatesShowcase from './Components/TemplatesShowcase';
 import FeaturesSection from './Components/FeaturesSection';
-import HowItWorks from './Components/HowItWorks';
 import TemplateSelection from './Components/TemplateSelection';
 import ResumeBuilder from './Components/ResumeBuilder';
 import ResumeOptions from './Components/ResumeOptions';
@@ -32,7 +31,6 @@ function App() {
               <Hero />
               <ModernTemplatesShowcase />
               <FeaturesSection />
-              <HowItWorks />
               <TestimonialsSection />
               <FAQSection />
               <Footer />

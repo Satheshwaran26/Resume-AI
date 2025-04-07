@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { FaQuestionCircle, FaCheck } from 'react-icons/fa';
+import { FaQuestionCircle, FaCheck, FaRocket, FaArrowRight } from 'react-icons/fa';
+import { Link } from 'react-router-dom';
 
 const FAQSection = () => {
   const [openIndex, setOpenIndex] = useState(null);
@@ -128,29 +129,50 @@ const FAQSection = () => {
           </div>
         </div>
         
-        {/* Contact Support Card - Updated to match Hero style */}
-        <div className="mt-16 bg-white rounded-2xl shadow-xl p-8 md:p-10 overflow-hidden relative border border-gray-100">
-          <div className="absolute top-0 right-0 -mt-10 -mr-10 w-40 h-40 bg-indigo-50 opacity-50 rounded-full"></div>
-          <div className="absolute bottom-0 left-0 -mb-10 -ml-10 w-40 h-40 bg-indigo-50 opacity-50 rounded-full"></div>
+   
+        
+        {/* Main CTA Section - Hero-style */}
+        <div className="mt-24 mb-8 text-center">
+          <div className="inline-flex items-center space-x-2 px-4 py-2 rounded-full bg-blur mb-6 shadow-sm border border-gray-400/20">
+            <FaRocket className="h-4 w-4 " />
+            <span className="text-sm font-light">Get Started Today</span>
+          </div>
           
-          <div className="flex flex-col md:flex-row items-center justify-between relative z-10">
-            <div className="mb-6 md:mb-0">
-              <h3 className="text-gray-800 text-2xl font-light mb-2">Still have questions?</h3>
-              <p className="text-gray-600 font-light">Our support team is ready to help you with any inquiries</p>
-            </div>
+          <h2 className="text-4xl md:text-5xl font-extralight text-gray-900 mb-6">
+            Ready to create your <span className="bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 bg-clip-text text-transparent">professional resume?</span>
+          </h2>
+          
+          <p className="text-xl text-gray-600 max-w-3xl mx-auto font-light mb-10">
+            Join thousands of job seekers who have successfully landed their dream jobs
+          </p>
+          
+          <div className="flex flex-wrap justify-center gap-6">
+            <Link 
+              to="/builder" 
+              className="px-8 py-4 rounded-lg font-medium text-white bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 shadow-lg hover:shadow-xl transition-all duration-300 flex items-center"
+            >
+              Start Building Now
+              <FaArrowRight className="ml-2" />
+            </Link>
             
-            <div className="flex flex-wrap gap-4">
-              <button
-                className="px-6 py-3 rounded-lg font-medium text-white bg-indigo-600 hover:bg-indigo-700 transition duration-200"
-              >
-                Contact Support
-              </button>
-              <button
-                className="px-6 py-3 rounded-lg font-medium text-indigo-600 border border-indigo-600 hover:bg-indigo-50 transition duration-200"
-              >
-                Read Documentation
-              </button>
-            </div>
+            <Link 
+              to="/templates" 
+              className="px-8 py-4 rounded-lg font-medium text-indigo-600 border border-indigo-600 hover:bg-indigo-50 transition-all duration-300"
+            >
+              Browse Templates
+            </Link>
+          </div>
+        </div>
+        
+        {/* Social Proof */}
+        <div className="mt-16 text-center">
+          <p className="text-gray-500 font-light mb-4">Trusted by professionals from companies like</p>
+          <div className="flex flex-wrap justify-center gap-8 opacity-70">
+            <div className="h-8 text-gray-400 font-semibold">Google</div>
+            <div className="h-8 text-gray-400 font-semibold">Microsoft</div>
+            <div className="h-8 text-gray-400 font-semibold">Amazon</div>
+            <div className="h-8 text-gray-400 font-semibold">Facebook</div>
+            <div className="h-8 text-gray-400 font-semibold">Apple</div>
           </div>
         </div>
       </div>

@@ -4,7 +4,7 @@ import { FaUpload, FaCheckCircle, FaTimesCircle, FaDownload, FaClipboard, FaChar
 // Gemini API key (in a real application, this would be managed more securely via environment variables)
 const GEMINI_API_KEY = "AIzaSyCYt2zKfCwqLMdovKuIN8abRVg55zw28_0"; // Replace with your actual API key
 
-const ATSScanner = () => {
+const ATSScanner = ({ resumeData, onClose }) => {
   const [file, setFile] = useState(null);
   const [fileContent, setFileContent] = useState('');
   const [jobDescription, setJobDescription] = useState('');
@@ -13,6 +13,16 @@ const ATSScanner = () => {
   const [error, setError] = useState(null);
   const [activeTab, setActiveTab] = useState('resume');
   const [spellingErrors, setSpellingErrors] = useState([]);
+
+  // Use resumeData if provided
+  useEffect(() => {
+    if (resumeData) {
+      // Convert resumeData to string format for analysis
+      const resumeText = JSON.stringify(resumeData);
+      setFileContent(resumeText);
+      setFile({ name: "resume.json" }); // Create a dummy file object
+    }
+  }, [resumeData]);
 
   // Handle file upload
   const handleFileChange = (e) => {
@@ -606,6 +616,21 @@ const ATSScanner = () => {
             </div>
           </div>
         </div>
+        
+        {/* Close Button */}
+        {onClose && (
+          <div className="mt-8 text-center">
+            <button
+              onClick={onClose}
+              className="px-6 py-2 bg-gray-200 hover:bg-gray-300 text-gray-800 rounded-lg transition-colors duration-200 inline-flex items-center"
+            >
+              <svg className="w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+              Close Scanner
+            </button>
+          </div>
+        )}
       </div>
     </div>
   );

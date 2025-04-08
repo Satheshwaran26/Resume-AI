@@ -111,11 +111,7 @@ const MinimalistTemplate = ({ data }) => {
                 <p className="mt-2">
                   Describe your responsibilities and achievements in this role. Use action verbs and quantify results when possible.
                 </p>
-                <ul className="list-disc ml-5 mt-2 space-y-1">
-                  <li>Key achievement or responsibility 1</li>
-                  <li>Key achievement or responsibility 2</li>
-                  <li>Key achievement or responsibility 3</li>
-                </ul>
+               
               </div>
             )}
           </div>
@@ -238,33 +234,7 @@ const MinimalistTemplate = ({ data }) => {
           </section>
         ) : null}
 
-        {/* Languages Section */}
-        {(languages && languages.length > 0 && languages[0].name) || isEmptyLanguages ? (
-          <section>
-            <h3 className="text-lg font-medium uppercase tracking-wider text-resume-charcoal mb-1">
-              Languages
-            </h3>
-            <div className="h-px bg-resume-light-gray mb-2"></div>
-            {!isEmptyLanguages ? (
-              // Render actual languages data
-              <div className="flex flex-wrap gap-4">
-                {languages.map((language) => (
-                  <span key={language.id} className="text-resume-slate">
-                    {language.name} ({language.level})
-                  </span>
-                ))}
-              </div>
-            ) : (
-              // Render placeholder languages
-              <div className="flex flex-wrap gap-4 text-gray-400 italic">
-                <span>English (Native)</span>
-                <span>Spanish (Intermediate)</span>
-                <span>French (Basic)</span>
-              </div>
-            )}
-          </section>
-        ) : null}
-
+     
         {/* Certifications Section */}
         {(certifications && certifications.length > 0 && certifications[0].name) || isEmptyCertifications ? (
           <section>
@@ -331,41 +301,7 @@ const MinimalistTemplate = ({ data }) => {
           </section>
         ) : null}
 
-        {/* Declaration Section */}
-        {declaration.text || isEmptyDeclaration ? (
-          <section>
-            <h3 className="text-lg font-medium uppercase tracking-wider text-resume-charcoal mb-1">
-              Declaration
-            </h3>
-            <div className="h-px bg-resume-light-gray mb-2"></div>
-            {!isEmptyDeclaration ? (
-              // Render actual declaration data
-              <>
-                <p className="text-resume-slate">{declaration.text}</p>
-                <div className="flex justify-between mt-4">
-                  <div>
-                    <p className="text-resume-slate">{declaration.place}</p>
-                    <p className="text-resume-slate">{declaration.date}</p>
-                  </div>
-                  <p className="text-resume-slate font-medium">{declaration.signature}</p>
-                </div>
-              </>
-            ) : (
-              // Render placeholder declaration
-              <div className="text-gray-400 italic">
-                <p>I hereby declare that all the information provided above is true to the best of my knowledge and belief.</p>
-                <div className="flex justify-between mt-4">
-                  <div>
-                    <p>City, Country</p>
-                    <p>Date</p>
-                  </div>
-                  <p className="font-medium">Your Name</p>
-                </div>
-              </div>
-            )}
-          </section>
-        ) : null}
-      </div>
+           </div>
     </div>
   );
 };

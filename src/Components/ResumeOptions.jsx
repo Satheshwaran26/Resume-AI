@@ -74,7 +74,8 @@ const ResumeOptions = () => {
               
               <div className="text-center">
                 <Link
-                  to="/ai-builder"
+                  to="/resume-builder"
+                  state={{ aiAssisted: true, showAIInput: true }}
                   className="inline-block px-6 py-3 bg-indigo-600 text-white rounded-lg font-medium hover:bg-indigo-700 transition duration-200"
                 >
                   Create with AI

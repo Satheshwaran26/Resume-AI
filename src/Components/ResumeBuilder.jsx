@@ -1,16 +1,17 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import CreativeColorful from './Templates/CreativeColorful';
 import MinimalistTemplate from './Templates/MinimalistTemplate';
 import ModernMinimal from './Templates/ModernMinimal';
 import ATSTemplate from './Templates/ATSTemplate';
 import ATSScanner from './ATSScanner';
-import AIResumeInput from './AIResumeInput'; // New component for AI input
-import { FaFileAlt, FaMagic, FaDownload, FaSearchPlus, FaSearchMinus, FaUserTie } from 'react-icons/fa';
+import AIResumeInput from './AIResumeInput';
+import { FaMagic, FaDownload, FaSearchPlus, FaSearchMinus, FaUserTie } from 'react-icons/fa';
 
 const ResumeBuilder = ({ aiAssisted = false }) => {
   const location = useLocation();
   const navigate = useNavigate();
+  const resumeContainerRef = useRef(null);
   const [selectedTemplate, setSelectedTemplate] = useState(null);
   const [formData, setFormData] = useState({
     personalInfo: {
@@ -88,6 +89,61 @@ const ResumeBuilder = ({ aiAssisted = false }) => {
   const [previewScale, setPreviewScale] = useState(0.85); // Scale for resume preview
   const [paperSize, setPaperSize] = useState('a4'); // 'a4' or 'letter'
   
+  // Function to render AI input form
+  const renderAIInputForm = () => {
+    switch (aiStep) {
+      case 1:
+        return (
+          <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100 p-4">
+            <div className="w-full max-w-2xl bg-white rounded-lg shadow-lg p-6">
+              <h2 className="text-2xl font-bold mb-4">AI Resume Builder</h2>
+              <p className="text-gray-600 mb-6">
+                Let's create your professional resume with AI assistance. Please provide your information below.
+              </p>
+              <textarea
+                className="w-full h-48 p-4 border rounded-lg mb-4"
+                placeholder="Enter your work experience, education, skills, and any other relevant information..."
+                value={aiInputData}
+                onChange={(e) => setAiInputData(e.target.value)}
+              />
+              <button
+                className="w-full bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition-colors"
+                onClick={handleAIInputSubmit}
+              >
+                Generate Resume
+              </button>
+            </div>
+          </div>
+        );
+      case 2:
+        return (
+          <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100 p-4">
+            <div className="w-full max-w-2xl bg-white rounded-lg shadow-lg p-6 text-center">
+              <h2 className="text-2xl font-bold mb-4">Processing Your Information</h2>
+              <p className="text-gray-600 mb-6">
+                Our AI is analyzing your information and generating a professional resume...
+              </p>
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+            </div>
+          </div>
+        );
+      case 3:
+        return (
+          <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100 p-4">
+            <div className="w-full max-w-2xl bg-white rounded-lg shadow-lg p-6">
+              <h2 className="text-2xl font-bold mb-4">Review Your Resume</h2>
+              <p className="text-gray-600 mb-6">
+                Your AI-generated resume is ready! Please review and make any necessary adjustments.
+              </p>
+              {/* Resume preview will be rendered here */}
+            </div>
+          </div>
+        );
+      default:
+        return null;
+    }
+  };
+
   // Define paper dimensions
   const paperSizes = {
     a4: { width: '794px', height: '1123px', name: 'A4' },
@@ -111,11 +167,12 @@ const ResumeBuilder = ({ aiAssisted = false }) => {
     // Log to verify data
     console.log('Location state:', location.state);
     
-    // Initialize based on aiAssisted prop
-    if (aiAssisted) {
+    // Initialize based on aiAssisted prop and showAIInput state
+    if (location.state?.showAIInput) {
       setIsAiMode(true);
+      setAiStep(1); // Set to input step
       // Skip template selection in AI mode
-      if (location.state && location.state.template) {
+      if (location.state.template) {
         setSelectedTemplate(location.state.template);
       } else {
         // Default to a template in AI mode
@@ -125,7 +182,20 @@ const ResumeBuilder = ({ aiAssisted = false }) => {
           description: 'A clean, modern design with minimal elements'
         });
       }
-    } else if (location.state && location.state.template) {
+    } else if (aiAssisted) {
+      setIsAiMode(true);
+      // Skip template selection in AI mode
+      if (location.state?.template) {
+        setSelectedTemplate(location.state.template);
+      } else {
+        // Default to a template in AI mode
+        setSelectedTemplate({ 
+          type: 'modern-minimal',
+          name: 'Modern Minimal',
+          description: 'A clean, modern design with minimal elements'
+        });
+      }
+    } else if (location.state?.template) {
       setSelectedTemplate(location.state.template);
       // Set Personal Info as the active section by default
       setActiveSection('personalInfo');
@@ -226,7 +296,15 @@ const ResumeBuilder = ({ aiAssisted = false }) => {
           newItem = { ...newItem, name: '', level: 'Intermediate' };
           break;
         case 'certifications':
-          newItem = { ...newItem, name: '', issuer: '', date: '', description: '' };
+          newItem = { 
+            ...newItem, 
+            name: '', 
+            issuer: '', 
+            date: '', 
+            description: '',
+            credentialId: '',
+            credentialUrl: ''
+          };
           break;
         case 'projects':
           newItem = { ...newItem, name: '', description: '', link: '', technologies: [''] };
@@ -485,6 +563,92 @@ const ResumeBuilder = ({ aiAssisted = false }) => {
               className="w-full py-2 px-4 border border-blue-500 text-blue-500 rounded-lg hover:bg-blue-50 transition-colors duration-200"
             >
               + Add Skill
+            </button>
+          </div>
+        );
+
+      case 'Certifications':
+        return (
+          <div className="p-4 space-y-4">
+            {formData.certifications.map((cert, index) => (
+              <div key={cert.id} className="p-4 border border-gray-200 rounded-lg space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Certificate Name</label>
+                    <input
+                      type="text"
+                      className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                      value={cert.name}
+                      onChange={(e) => handleInputChange('certifications', 'name', e.target.value, index)}
+                      placeholder="e.g., AWS Solutions Architect"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Issuing Organization</label>
+                    <input
+                      type="text"
+                      className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                      value={cert.issuer}
+                      onChange={(e) => handleInputChange('certifications', 'issuer', e.target.value, index)}
+                      placeholder="e.g., Amazon Web Services"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Issue Date</label>
+                    <input
+                      type="month"
+                      className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                      value={cert.date}
+                      onChange={(e) => handleInputChange('certifications', 'date', e.target.value, index)}
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Credential ID</label>
+                    <input
+                      type="text"
+                      className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                      value={cert.credentialId}
+                      onChange={(e) => handleInputChange('certifications', 'credentialId', e.target.value, index)}
+                      placeholder="Optional credential identifier"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Credential URL</label>
+                    <input
+                      type="url"
+                      className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                      value={cert.credentialUrl}
+                      onChange={(e) => handleInputChange('certifications', 'credentialUrl', e.target.value, index)}
+                      placeholder="https://credential.example.com/verify"
+                    />
+                  </div>
+                  <div className="col-span-2">
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
+                    <textarea
+                      className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                      value={cert.description}
+                      onChange={(e) => handleInputChange('certifications', 'description', e.target.value, index)}
+                      rows="3"
+                      placeholder="Describe the certificate and relevant skills acquired"
+                    />
+                  </div>
+                </div>
+                <button
+                  onClick={() => handleRemoveItem('certifications', cert.id)}
+                  className="text-red-500 hover:text-red-700 text-sm flex items-center gap-1"
+                >
+                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                  </svg>
+                  Remove
+                </button>
+              </div>
+            ))}
+            <button
+              onClick={() => handleAddItem('certifications')}
+              className="w-full py-2 px-4 border border-blue-500 text-blue-500 rounded-lg hover:bg-blue-50"
+            >
+              + Add Certification
             </button>
           </div>
         );
@@ -781,6 +945,8 @@ const ResumeBuilder = ({ aiAssisted = false }) => {
         return renderSectionContent('Education');
       case 'skills':
         return renderSectionContent('Skillsets');
+      case 'certifications':
+        return renderSectionContent('Certifications');
       case 'projects':
         return renderSectionContent('Projects');
       case 'declaration':
@@ -851,7 +1017,7 @@ const ResumeBuilder = ({ aiAssisted = false }) => {
         <header className="border-b border-gray-200 bg-white/80 backdrop-blur-sm pt-20 sticky top-0 z-50">
           <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <a href="/dashboard" className="text-indigo-600 text-sm hover:underline font-medium">Dashboard</a>
+              <a href="/templates" className="text-indigo-600 text-sm hover:underline font-medium">Templates</a>
               <span className="text-gray-400">/</span>
               <span className="text-gray-600 text-sm">AI Resume Creator</span>
             </div>
@@ -874,52 +1040,6 @@ const ResumeBuilder = ({ aiAssisted = false }) => {
       </div>
     );
   }
-
-  // Render the AI input form
-  const renderAIInputForm = () => {
-    if (aiStep === 1) {
-      return (
-        <div className="max-w-2xl mx-auto">
-          <div className="bg-white/80 backdrop-blur-sm rounded-2xl border border-gray-200/50 p-8 shadow-md">
-            <h2 className="text-2xl font-light text-gray-900 mb-4">
-              <span className="bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 bg-clip-text text-transparent">
-                Create
-              </span> Your Resume with AI
-            </h2>
-            <p className="text-gray-600 mb-8">Tell us about your experience, skills, and career goals. Our AI will generate a professional resume tailored to your profile.</p>
-            
-            <AIResumeInput 
-              onSubmit={handleAIInputSubmit} 
-              setInputData={setAiInputData}
-              inputData={aiInputData}
-            />
-          </div>
-        </div>
-      );
-    } else if (aiStep === 2) {
-      return (
-        <div className="flex flex-col items-center justify-center p-8 min-h-[60vh]">
-          <div className="w-16 h-16 mb-6">
-            <svg className="animate-spin h-16 w-16 text-indigo-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-            </svg>
-          </div>
-          <h3 className="text-2xl font-light text-gray-900 mb-3">
-            <span className="bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 bg-clip-text text-transparent">
-              Creating
-            </span> Your Resume
-          </h3>
-          <p className="text-gray-600 max-w-md text-center">
-            Our AI is analyzing your input and crafting a professional resume. This may take a few moments...
-          </p>
-        </div>
-      );
-    } else {
-      // This should not happen as we should switch to normal mode after processing
-      return null;
-    }
-  };
 
   // Add this before the return statement
   const renderATSScanner = () => {
@@ -956,7 +1076,7 @@ const ResumeBuilder = ({ aiAssisted = false }) => {
   };
 
   // Handle AI input submission
-  const handleAIInputSubmit = async (inputText) => {
+  const handleAIInputSubmit = async () => {
     setAiProcessing(true);
     setAiStep(2); // Processing step
     
@@ -966,7 +1086,7 @@ const ResumeBuilder = ({ aiAssisted = false }) => {
       await new Promise(resolve => setTimeout(resolve, 3000));
       
       // Simulate AI-generated resume data
-      const generatedData = generateResumeFromAI(inputText);
+      const generatedData = generateResumeFromAI(aiInputData);
       setFormData(generatedData);
       
       // Move to review step
@@ -980,114 +1100,152 @@ const ResumeBuilder = ({ aiAssisted = false }) => {
     }
   };
 
-  // Function to generate resume data from AI input (placeholder)
+  // Function to generate resume data from AI input
   const generateResumeFromAI = (inputText) => {
-    // In a real implementation, this would be parsed from the AI response
-    // For now, we'll extract some basic info from the input
-    
-    // Very simple extraction logic for demo purposes
-    const nameParts = inputText.match(/name is ([A-Za-z\s]+)/i);
-    const firstName = nameParts ? nameParts[1].split(' ')[0] : '';
-    const lastName = nameParts && nameParts[1].split(' ').length > 1 ? 
-      nameParts[1].split(' ').slice(1).join(' ') : '';
-    
-    const emailMatch = inputText.match(/email is ([a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})/i);
-    const email = emailMatch ? emailMatch[1] : '';
-    
-    const phoneMatch = inputText.match(/phone is (\+?[0-9\s-]{10,15})/i);
-    const phone = phoneMatch ? phoneMatch[1] : '';
-    
-    const jobTitleMatch = inputText.match(/(?:I am a|I work as an?|as an?|position is) ([A-Za-z\s]+)/i);
-    const jobTitle = jobTitleMatch ? jobTitleMatch[1].trim() : '';
-    
-    // Create a new data object based on the existing formData structure
+    // This is a placeholder implementation
+    // In a real application, this would process the input text using AI
     return {
-      ...formData,
       personalInfo: {
-        ...formData.personalInfo,
-        firstName,
-        lastName,
-        email,
-        phone,
-        title: jobTitle,
-        summary: inputText.substring(0, 150) + "..." // Simple summary
+        firstName: '',
+        lastName: '',
+        email: '',
+        phone: '',
+        address: '',
+        city: '',
+        state: '',
+        zipCode: '',
+        country: '',
+        jobTitle: '',
+        website: '',
+        linkedin: '',
+        github: '',
+        summary: ''
       },
-      // You could add more sophisticated parsing for other sections
+      experience: [],
+      education: [],
+      skills: [],
+      projects: [],
+      certifications: [],
+      languages: [],
+      interests: []
     };
   };
 
   // Add this function before the return statement
   const handlePrintResume = () => {
-    // Create a new window for printing
-    const printWindow = window.open('', '_blank');
-    
-    // Get the selected template component
-    const TemplateComponent = {
-      'minimalist': MinimalistTemplate,
-      'modern-minimal': ModernMinimal,
-      'creative-colorful': CreativeColorful,
-      'ats-template': ATSTemplate
-    }[selectedTemplate.type] || CreativeColorful;
-    
-    // Generate HTML content
-    const htmlContent = `
-      <!DOCTYPE html>
-      <html>
-      <head>
-        <title>${formData.personalInfo.firstName} ${formData.personalInfo.lastName} - Resume</title>
-        <meta charset="utf-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1">
-        <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
-        <style>
-          @page {
-            size: ${paperSize === 'a4' ? 'A4' : 'letter'};
-            margin: 0;
+    if (!resumeContainerRef.current) {
+      console.error('Resume container not found');
+      return;
+    }
+
+    // Show loading indicator
+    const loadingEl = document.createElement('div');
+    loadingEl.style.position = 'fixed';
+    loadingEl.style.top = '0';
+    loadingEl.style.left = '0';
+    loadingEl.style.width = '100%';
+    loadingEl.style.height = '100%';
+    loadingEl.style.display = 'flex';
+    loadingEl.style.alignItems = 'center';
+    loadingEl.style.justifyContent = 'center';
+    loadingEl.style.backgroundColor = 'rgba(255, 255, 255, 0.8)';
+    loadingEl.style.zIndex = '9999';
+    loadingEl.innerHTML = '<div style="text-align: center;"><div style="border: 4px solid #f3f3f3; border-top: 4px solid #3498db; border-radius: 50%; width: 40px; height: 40px; margin: 0 auto 20px; animation: spin 1s linear infinite;"></div><p>Generating PDF...</p></div>';
+    document.body.appendChild(loadingEl);
+
+    // Create style element for the loading spinner animation
+    const styleEl = document.createElement('style');
+    styleEl.textContent = '@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }';
+    document.head.appendChild(styleEl);
+
+    // Step 1: Load the scripts we need (jsPDF and html2canvas)
+    const loadScript = (url) => {
+      return new Promise((resolve, reject) => {
+        const script = document.createElement('script');
+        script.src = url;
+        script.onload = resolve;
+        script.onerror = reject;
+        document.body.appendChild(script);
+      });
+    };
+
+    // Step 2: Load required libraries
+    Promise.all([
+      loadScript('https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js'),
+      loadScript('https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js')
+    ])
+    .then(() => {
+      // Step 3: Temporarily remove transform scale from resume container for proper capture
+      const element = resumeContainerRef.current;
+      const originalTransform = element.style.transform;
+      const originalWidth = element.style.width;
+      
+      // Reset transform and set fixed width for better rendering
+      element.style.transform = 'none';
+      element.style.width = paperSize === 'a4' ? '210mm' : '215.9mm';
+      
+      // Step 4: Use html2canvas to take a screenshot
+      window.html2canvas(element, {
+        scale: 2,
+        useCORS: true,
+        allowTaint: true,
+        logging: false,
+        letterRendering: true,
+        backgroundColor: '#FFFFFF'
+      }).then(canvas => {
+        // Step 5: Create a new jsPDF document
+        const { jsPDF } = window.jspdf;
+        const pdfWidth = paperSize === 'a4' ? 210 : 215.9; // mm
+        const pdfHeight = paperSize === 'a4' ? 297 : 279.4; // mm
+        
+        // Convert canvas to image
+        const imgData = canvas.toDataURL('image/jpeg', 1.0);
+        
+        // Calculate scale to fit into PDF
+        const imgWidth = pdfWidth;
+        const imgHeight = (canvas.height * imgWidth) / canvas.width;
+        
+        // Create PDF with correct dimensions
+        const pdf = new jsPDF('p', 'mm', paperSize === 'a4' ? 'a4' : 'letter');
+        
+        // Add image to PDF
+        pdf.addImage(imgData, 'JPEG', 0, 0, imgWidth, imgHeight);
+        
+        // If image is taller than PDF page, add additional pages
+        let position = 0;
+        let heightLeft = imgHeight;
+        
+        while (heightLeft > 0) {
+          position = heightLeft - imgHeight;
+          heightLeft -= pdfHeight;
+          
+          if (heightLeft > 0) {
+            pdf.addPage();
+            pdf.addImage(imgData, 'JPEG', 0, position, imgWidth, imgHeight);
           }
-          body {
-            margin: 0;
-            padding: 0;
-          }
-          .resume-container {
-            width: 100%;
-            height: 100%;
-            overflow: hidden;
-          }
-          @media print {
-            body {
-              -webkit-print-color-adjust: exact;
-              print-color-adjust: exact;
-            }
-          }
-        </style>
-      </head>
-      <body>
-        <div id="resume-content" class="resume-container"></div>
-        <script>
-          // This will automatically trigger print once content is rendered
-          window.onload = function() { window.print(); window.close(); };
-        </script>
-      </body>
-      </html>
-    `;
-    
-    // Write content to the new window
-    printWindow.document.open();
-    printWindow.document.write(htmlContent);
-    printWindow.document.close();
-    
-    // Use ReactDOM to render template in the new window
-    setTimeout(() => {
-      try {
-        const container = printWindow.document.getElementById('resume-content');
-        if (container) {
-          // Note: In a real implementation, you would use ReactDOM.render here
-          // but for this example we're just providing the structure
-          container.innerHTML = '<div class="p-8">Resume content will render here</div>';
         }
-      } catch (e) {
-        console.error('Error rendering resume for print:', e);
+        
+        // Save the PDF
+        const fileName = `${formData.personalInfo.firstName || 'Resume'}_${formData.personalInfo.lastName || 'PDF'}.pdf`;
+        pdf.save(fileName);
+        
+        // Restore original styles
+        element.style.transform = originalTransform;
+        element.style.width = originalWidth;
+        
+        // Cleanup
+        document.body.removeChild(loadingEl);
+        document.head.removeChild(styleEl);
+      });
+    })
+    .catch(error => {
+      console.error('Error generating PDF:', error);
+      document.body.removeChild(loadingEl);
+      if (document.head.contains(styleEl)) {
+        document.head.removeChild(styleEl);
       }
-    }, 500);
+      alert('There was an error generating your PDF. Please try again later.');
+    });
   };
 
   return (
@@ -1105,10 +1263,10 @@ const ResumeBuilder = ({ aiAssisted = false }) => {
       </div>
 
       {/* Header */}
-      <header className="border-b border-gray-200  pt-20 sticky top-0 z-50">
+      <header className="border-b border-gray-200  pt-20 sticky top-0">
         <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <a href="/dashboard" className="text-indigo-600 text-sm hover:underline font-medium">Dashboard</a>
+            <a href="/templates" className="text-indigo-600 text-sm hover:underline font-medium">Templates</a>
             <span className="text-gray-400">/</span>
             <span className="text-gray-600 text-sm">Resume Builder</span>
           </div>
@@ -1280,7 +1438,7 @@ const ResumeBuilder = ({ aiAssisted = false }) => {
             </div>
 
             {/* Other sections (Education, Experience, etc.) */}
-            {['experience', 'education', 'skills', 'projects', 'declaration', 'others'].map((sectionId) => {
+            {['experience', 'education', 'skills', 'certifications', 'projects', 'declaration', 'others'].map((sectionId) => {
               // Find the section object from sections array
               const sectionObj = sections.find(s => s.id === sectionId);
               const sectionName = sectionObj ? sectionObj.name : sectionId;
@@ -1371,7 +1529,8 @@ const ResumeBuilder = ({ aiAssisted = false }) => {
             {/* Paper size container with proper aspect ratio */}
             <div className="relative mx-auto flex justify-center overflow-visible" style={{ maxWidth: '100%' }}>
               <div 
-                className="bg-white shadow-lg border border-gray-200 min-h-[500px] z-10 overflow-visible"
+                ref={resumeContainerRef}
+                className="resume-container bg-white shadow-lg border border-gray-200 min-h-[500px] z-10 overflow-visible"
                 style={{ 
                   width: paperSizes[paperSize].width,
                   minHeight: '800px',

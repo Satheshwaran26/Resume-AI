@@ -7,6 +7,7 @@ import ATSTemplate from './Templates/ATSTemplate';
 import ATSScanner from './ATSScanner';
 import AIResumeInput from './AIResumeInput';
 import { FaMagic, FaDownload, FaSearchPlus, FaSearchMinus, FaUserTie } from 'react-icons/fa';
+import { validateResumeData, createDefaultResumeData } from '../utils/dataTransfer';
 
 const ResumeBuilder = ({ aiAssisted = false }) => {
   const location = useLocation();
@@ -89,30 +90,382 @@ const ResumeBuilder = ({ aiAssisted = false }) => {
   const [previewScale, setPreviewScale] = useState(0.85); // Scale for resume preview
   const [paperSize, setPaperSize] = useState('a4'); // 'a4' or 'letter'
   
+  // Function to generate resume data from AI input
+  const generateResumeFromAI = (inputText) => {
+    // Extract basic information using regex patterns
+    const nameMatch = inputText.match(/My name is ([^\.]+)/i);
+    const emailMatch = inputText.match(/([a-zA-Z0-9._-]+@[a-zA-Z0-9._-]+\.[a-zA-Z0-9._-]+)/gi);
+    const phoneMatch = inputText.match(/(\+\d{1,3}[-.]?)?\(?\d{3}\)?[-.]?\d{3}[-.]?\d{4}/g);
+    const titleMatch = inputText.match(/I'?m a ([^\.]+)/i);
+    
+    // Extract education information - handle both formats
+    let education = [];
+    const educationMatch1 = inputText.match(/graduated from ([^\.]+) with a ([^\.]+) in ([^\.]+) in (\d{4})/gi);
+    const educationMatch2 = inputText.match(/graduated from ([^\.]+) with a ([^\.]+) in (\d{4})/gi);
+    
+    if (educationMatch1) {
+      education = educationMatch1.map(match => {
+        const [_, institution, degree, field, year] = match.match(/graduated from ([^\.]+) with a ([^\.]+) in ([^\.]+) in (\d{4})/i);
+        return {
+          id: 1,
+          institution: institution.trim(),
+          degree: degree.trim(),
+          field: field.trim(),
+          startDate: `${parseInt(year) - 4}-01`,
+          endDate: `${year}-12`,
+          current: false,
+          description: ''
+        };
+      });
+    } else if (educationMatch2) {
+      education = educationMatch2.map(match => {
+        const [_, institution, degree, year] = match.match(/graduated from ([^\.]+) with a ([^\.]+) in (\d{4})/i);
+        return {
+          id: 1,
+          institution: institution.trim(),
+          degree: degree.trim(),
+          field: '',
+          startDate: `${parseInt(year) - 4}-01`,
+          endDate: `${year}-12`,
+          current: false,
+          description: ''
+        };
+      });
+    }
+
+    // Extract work experience - handle both formats
+    let experience = [];
+    const experienceMatch1 = inputText.match(/worked at ([^\.]+) from (\d{4}) to (\d{4}) as a ([^\.]+) where ([^\.]+)/gi);
+    const experienceMatch2 = inputText.match(/worked at ([^\.]+) from (\d{4}) to (\d{4}) as a ([^\.]+)/gi);
+    const experienceMatch3 = inputText.match(/Since (\d{4}), I'?ve been at ([^\.]+) as a ([^\.]+) ([^\.]+)/gi);
+    
+    if (experienceMatch1) {
+      experience = experienceMatch1.map((match, index) => {
+        const [_, company, startYear, endYear, position, description] = match.match(/worked at ([^\.]+) from (\d{4}) to (\d{4}) as a ([^\.]+) where ([^\.]+)/i);
+        return {
+          id: index + 1,
+          company: company.trim(),
+          position: position.trim(),
+          startDate: `${startYear}-01`,
+          endDate: `${endYear}-12`,
+          current: false,
+          description: description.trim(),
+          achievements: ['']
+        };
+      });
+    } else if (experienceMatch2) {
+      experience = experienceMatch2.map((match, index) => {
+        const [_, company, startYear, endYear, position] = match.match(/worked at ([^\.]+) from (\d{4}) to (\d{4}) as a ([^\.]+)/i);
+        return {
+          id: index + 1,
+          company: company.trim(),
+          position: position.trim(),
+          startDate: `${startYear}-01`,
+          endDate: `${endYear}-12`,
+          current: false,
+          description: '',
+          achievements: ['']
+        };
+      });
+    }
+    
+    // Handle "Since XXXX, I've been at..." format
+    if (experienceMatch3) {
+      experience = experienceMatch3.map((match, index) => {
+        const [_, startYear, company, position, description] = match.match(/Since (\d{4}), I'?ve been at ([^\.]+) as a ([^\.]+) ([^\.]+)/i);
+        return {
+          id: experience.length + index + 1,
+          company: company.trim(),
+          position: position.trim(),
+          startDate: `${startYear}-01`,
+          endDate: '',
+          current: true,
+          description: description.trim(),
+          achievements: ['']
+        };
+      });
+    }
+
+    // Extract skills
+    let skills = [];
+    const skillsMatch1 = inputText.match(/skills include ([^\.]+)/i);
+    const skillsMatch2 = inputText.match(/My skills include ([^\.]+)/i);
+    
+    if (skillsMatch1) {
+      skills = skillsMatch1[1].split(',').map((skill, index) => ({
+        id: index + 1,
+        name: skill.trim()
+      }));
+    } else if (skillsMatch2) {
+      skills = skillsMatch2[1].split(',').map((skill, index) => ({
+        id: index + 1,
+        name: skill.trim()
+      }));
+    }
+    
+    // Extract certifications
+    let certifications = [];
+    const certMatch = inputText.match(/I'?m certified in ([^\.]+)/i);
+    if (certMatch) {
+      certifications = certMatch[1].split(',').map((cert, index) => ({
+        id: index + 1,
+        name: cert.trim(),
+        issuer: '',
+        date: '',
+        description: '',
+        credentialId: '',
+        credentialUrl: ''
+      }));
+    }
+    
+    // Extract projects
+    let projects = [];
+    const projectMatch = inputText.match(/My most successful project was ([^\.]+) that ([^\.]+)/i);
+    if (projectMatch) {
+      projects = [{
+        id: 1,
+        name: projectMatch[1].trim(),
+        description: projectMatch[2].trim(),
+        link: '',
+        technologies: ['']
+      }];
+    }
+
+    // Create the resume data structure with empty arrays for all properties to prevent "length" errors
+    return {
+      personalInfo: {
+        firstName: nameMatch ? nameMatch[1].split(' ')[0] : '',
+        lastName: nameMatch ? nameMatch[1].split(' ').slice(1).join(' ') : '',
+        email: emailMatch ? emailMatch[0] : '',
+        phone: phoneMatch ? phoneMatch[0] : '',
+        address: '',
+        city: '',
+        state: '',
+        zipCode: '',
+        country: '',
+        title: titleMatch ? titleMatch[1] : '',
+        summary: inputText.split('.')[0] // Use first sentence as summary
+      },
+      experience: experience.length > 0 ? experience : [
+        {
+          id: 1,
+          company: '',
+          position: '',
+          startDate: '',
+          endDate: '',
+          current: false,
+          description: '',
+          achievements: ['']
+        }
+      ],
+      education: education.length > 0 ? education : [
+        {
+          id: 1,
+          institution: '',
+          degree: '',
+          field: '',
+          startDate: '',
+          endDate: '',
+          current: false,
+          description: ''
+        }
+      ],
+      skills: skills.length > 0 ? skills : [{ id: 1, name: '' }],
+      projects: projects.length > 0 ? projects : [
+        { 
+          id: 1, 
+          name: '', 
+          description: '', 
+          link: '', 
+          technologies: [''] 
+        }
+      ],
+      certifications: certifications.length > 0 ? certifications : [
+        { 
+          id: 1, 
+          name: '', 
+          issuer: '', 
+          date: '', 
+          description: '',
+          credentialId: '',
+          credentialUrl: '' 
+        }
+      ],
+      languages: [{ id: 1, name: '', level: 'Intermediate' }],
+      others: [{ id: 1, title: '', description: '' }],
+      declaration: {
+        text: '',
+        place: '',
+        date: '',
+        signature: ''
+      }
+    };
+  };
+
+  // Add a data validation function
+  const validateResumeData = (data) => {
+    // Create a new validated object with default values for missing properties
+    const validated = { ...data };
+    
+    // Ensure all array properties are initialized
+    const arrayProps = ['experience', 'education', 'skills', 'languages', 'certifications', 'projects', 'others'];
+    arrayProps.forEach(prop => {
+      if (!validated[prop] || !Array.isArray(validated[prop]) || validated[prop].length === 0) {
+        console.warn(`Initializing missing or empty ${prop} array`);
+        
+        // Set appropriate default values based on property
+        switch(prop) {
+          case 'experience':
+            validated[prop] = [{
+              id: 1,
+              company: '',
+              position: '',
+              startDate: '',
+              endDate: '',
+              current: false,
+              description: '',
+              achievements: ['']
+            }];
+            break;
+          case 'education':
+            validated[prop] = [{
+              id: 1,
+              institution: '',
+              degree: '',
+              field: '',
+              startDate: '',
+              endDate: '',
+              current: false,
+              description: ''
+            }];
+            break;
+          case 'skills':
+            validated[prop] = [{ id: 1, name: '' }];
+            break;
+          case 'languages':
+            validated[prop] = [{ id: 1, name: '', level: 'Intermediate' }];
+            break;
+          case 'certifications':
+            validated[prop] = [{ 
+              id: 1, 
+              name: '', 
+              issuer: '', 
+              date: '', 
+              description: '',
+              credentialId: '',
+              credentialUrl: '' 
+            }];
+            break;
+          case 'projects':
+            validated[prop] = [{ 
+              id: 1, 
+              name: '', 
+              description: '', 
+              link: '', 
+              technologies: [''] 
+            }];
+            break;
+          case 'others':
+            validated[prop] = [{ id: 1, title: '', description: '' }];
+            break;
+          default:
+            validated[prop] = [];
+        }
+      }
+      
+      // For each array item, ensure nested arrays are initialized
+      validated[prop].forEach(item => {
+        if (prop === 'experience' && (!item.achievements || !Array.isArray(item.achievements))) {
+          item.achievements = [''];
+        }
+        if (prop === 'projects' && (!item.technologies || !Array.isArray(item.technologies))) {
+          item.technologies = [''];
+        }
+      });
+    });
+    
+    // Ensure declaration object exists
+    if (!validated.declaration) {
+      validated.declaration = {
+        text: '',
+        place: '',
+        date: '',
+        signature: ''
+      };
+    }
+    
+    // Ensure personalInfo exists
+    if (!validated.personalInfo) {
+      validated.personalInfo = {
+        firstName: '',
+        lastName: '',
+        email: '',
+        phone: '',
+        address: '',
+        city: '',
+        state: '',
+        zipCode: '',
+        country: '',
+        title: '',
+        summary: ''
+      };
+    }
+    
+    return validated;
+  };
+
+  // Handle AI input submission
+  const handleAIInputSubmit = async () => {
+    if (!aiInputData.trim()) {
+      alert('Please enter your information before generating the resume.');
+      return;
+    }
+    
+    // Check if input matches our suggested format structure
+    const isStructuredInput = 
+      aiInputData.includes("My name is") && 
+      (aiInputData.includes("I graduated from") || aiInputData.includes("graduated from")) &&
+      (aiInputData.includes("I worked at") || aiInputData.includes("worked at") || 
+       aiInputData.includes("I've been at") || aiInputData.includes("Since")) &&
+      (aiInputData.includes("My skills include") || aiInputData.includes("skills include"));
+    
+    setAiProcessing(true);
+    setAiStep(2); // Move to processing step
+    
+    try {
+      // Simulate AI processing (replace with actual API call)
+      await new Promise(resolve => setTimeout(resolve, 2000));
+      
+      // Generate resume content from AI input
+      const generatedResume = generateResumeFromAI(aiInputData);
+      
+      // Log the parsed data to check what was extracted
+      console.log("Generated resume data from input:", generatedResume);
+      
+      // Set the form data with the generated resume
+      setFormData(generatedResume);
+      
+      setAiStep(3); // Move to review step
+    } catch (error) {
+      console.error('Error processing AI input:', error);
+      alert('An error occurred while processing your information. Please try again.');
+      setAiStep(1);
+    } finally {
+      setAiProcessing(false);
+    }
+  };
+  
   // Function to render AI input form
   const renderAIInputForm = () => {
     switch (aiStep) {
       case 1:
         return (
-          <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100 p-4">
-            <div className="w-full max-w-2xl bg-white rounded-lg shadow-lg p-6">
-              <h2 className="text-2xl font-bold mb-4">AI Resume Builder</h2>
-              <p className="text-gray-600 mb-6">
-                Let's create your professional resume with AI assistance. Please provide your information below.
-              </p>
-              <textarea
-                className="w-full h-48 p-4 border rounded-lg mb-4"
-                placeholder="Enter your work experience, education, skills, and any other relevant information..."
-                value={aiInputData}
-                onChange={(e) => setAiInputData(e.target.value)}
-              />
-              <button
-                className="w-full bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition-colors"
-                onClick={handleAIInputSubmit}
-              >
-                Generate Resume
-              </button>
-            </div>
+          <div className="min-h-screen  p-4">
+            <AIResumeInput
+              onSubmit={handleAIInputSubmit}
+              setInputData={setAiInputData}
+              inputData={aiInputData}
+            />
           </div>
         );
       case 2:
@@ -167,11 +520,55 @@ const ResumeBuilder = ({ aiAssisted = false }) => {
     // Log to verify data
     console.log('Location state:', location.state);
     
-    // Initialize based on aiAssisted prop and showAIInput state
-    if (location.state?.showAIInput) {
+    // Check for AI data from TemplateSelection (aiData and fromAI parameters)
+    if (location.state?.template && location.state?.aiData && location.state?.fromAI) {
       setIsAiMode(true);
-      setAiStep(1); // Set to input step
-      // Skip template selection in AI mode
+      setSelectedTemplate(location.state.template);
+      
+      // Store AI input data
+      setAiInputData(location.state.aiData);
+      
+      try {
+        // Generate resume content from AI input data
+        const generatedResume = generateResumeFromAI(location.state.aiData);
+        
+        // Validate the data to ensure all properties exist
+        const validatedResume = validateResumeData(generatedResume);
+        
+        // Set the validated form data
+        setFormData(validatedResume);
+        
+        // Skip AI input step and go directly to editing
+        setAiStep(3);
+        
+        // Set Personal Info as the active section by default
+        setActiveSection('personalInfo');
+      } catch (error) {
+        console.error('Error processing AI data:', error);
+        // If there's an error, use default data
+        setActiveSection('personalInfo');
+      }
+      
+    // Handle the original showAIInput case
+    } else if (location.state?.showAIInput) {
+      setIsAiMode(true);
+      
+      // If we have AI input data, process it
+      if (location.state.aiInputData) {
+        setAiInputData(location.state.aiInputData);
+        
+        // Generate resume data from AI input
+        const generatedResume = generateResumeFromAI(location.state.aiInputData);
+        setFormData(generatedResume);
+        
+        // Skip AI input step and go directly to editing (step 3)
+        setAiStep(3);
+      } else {
+        // If no AI data yet, start at step 1
+        setAiStep(1);
+      }
+      
+      // Set the selected template
       if (location.state.template) {
         setSelectedTemplate(location.state.template);
       } else {
@@ -969,8 +1366,10 @@ const ResumeBuilder = ({ aiAssisted = false }) => {
 
     // Log to verify template rendering
     console.log('Rendering template:', selectedTemplate.type);
-    console.log('Skills data:', formData.skills); // Log skills data
-
+    
+    // Validate form data before rendering to prevent errors
+    const validatedData = validateResumeData(formData);
+    
     // Use the static mapping of template types to components
     const TemplateComponent = {
       'minimalist': MinimalistTemplate,
@@ -982,10 +1381,10 @@ const ResumeBuilder = ({ aiAssisted = false }) => {
     // If no matching component is found, fall back to a default template
     if (!TemplateComponent) {
       console.log('Falling back to default template');
-      return <MinimalistTemplate data={formData} />;
+      return <MinimalistTemplate data={validatedData} />;
     }
 
-    return <TemplateComponent data={formData} />;
+    return <TemplateComponent data={validatedData} />;
   };
 
   // If no template is selected, show loading or redirect
@@ -1012,24 +1411,6 @@ const ResumeBuilder = ({ aiAssisted = false }) => {
           {/* Animated Grid Pattern */}
           <div className="absolute inset-0 bg-[linear-gradient(to_right,#4f46e5_1px,transparent_1px),linear-gradient(to_bottom,#4f46e5_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_80%_80%_at_50%_50%,#000_70%,transparent_110%)] opacity-5"></div>
         </div>
-
-        {/* Header */}
-        <header className="border-b border-gray-200 bg-white/80 backdrop-blur-sm pt-20 sticky top-0 z-50">
-          <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <a href="/templates" className="text-indigo-600 text-sm hover:underline font-medium">Templates</a>
-              <span className="text-gray-400">/</span>
-              <span className="text-gray-600 text-sm">AI Resume Creator</span>
-            </div>
-            <div>
-              <h1 className="text-[1.7rem] font-extralight text-gray-900">
-                <span className="bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 bg-clip-text text-transparent animate-gradient">
-                  AI-Assisted
-                </span> Resume Builder
-              </h1>
-            </div>
-          </div>
-        </header>
 
         {/* Main Content for AI Input */}
         <div className="max-w-7xl mx-auto px-6 py-10">
@@ -1073,62 +1454,6 @@ const ResumeBuilder = ({ aiAssisted = false }) => {
         </div>
       </div>
     );
-  };
-
-  // Handle AI input submission
-  const handleAIInputSubmit = async () => {
-    setAiProcessing(true);
-    setAiStep(2); // Processing step
-    
-    try {
-      // Here you would call your AI service to process the input
-      // For now, we'll simulate with a timeout
-      await new Promise(resolve => setTimeout(resolve, 3000));
-      
-      // Simulate AI-generated resume data
-      const generatedData = generateResumeFromAI(aiInputData);
-      setFormData(generatedData);
-      
-      // Move to review step
-      setAiStep(3);
-      setActiveSection('personalInfo');
-    } catch (error) {
-      console.error("Error processing AI input:", error);
-      // Handle error appropriately
-    } finally {
-      setAiProcessing(false);
-    }
-  };
-
-  // Function to generate resume data from AI input
-  const generateResumeFromAI = (inputText) => {
-    // This is a placeholder implementation
-    // In a real application, this would process the input text using AI
-    return {
-      personalInfo: {
-        firstName: '',
-        lastName: '',
-        email: '',
-        phone: '',
-        address: '',
-        city: '',
-        state: '',
-        zipCode: '',
-        country: '',
-        jobTitle: '',
-        website: '',
-        linkedin: '',
-        github: '',
-        summary: ''
-      },
-      experience: [],
-      education: [],
-      skills: [],
-      projects: [],
-      certifications: [],
-      languages: [],
-      interests: []
-    };
   };
 
   // Add this function before the return statement

@@ -1,11 +1,17 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { FaFileAlt, FaArrowRight } from 'react-icons/fa';
+import { useNavigate, useLocation } from 'react-router-dom';
+import { FaFileAlt, FaArrowRight, FaRobot } from 'react-icons/fa';
 
 const TemplateSelection = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const [imageErrors, setImageErrors] = useState({});
+  
+  // Check if coming from AI input page
+  const fromAI = location.state?.fromAI || false;
+  const aiData = location.state?.aiData || '';
 
+  // Templates array
   const templates = [
     {
       id: 'minimalist',
@@ -83,9 +89,22 @@ const TemplateSelection = () => {
   };
 
   const handleTemplateSelect = (template) => {
-    navigate('/resume-builder', {
-      state: { template }
-    });
+    // If coming from AI, pass the AI data directly to the resume builder
+    if (fromAI && aiData) {
+      navigate('/resume-builder', {
+        state: { 
+          template,
+          aiData,
+          fromAI: true,
+          // Skip additional data entry in ResumeBuilder
+          skipDataEntry: true 
+        }
+      });
+    } else {
+      navigate('/resume-builder', {
+        state: { template }
+      });
+    }
   };
 
   const handleImageError = (templateId) => {
@@ -132,6 +151,14 @@ const TemplateSelection = () => {
 
       <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 z-10">
         <div className="text-center mb-14">
+          {/* Show AI badge if coming from AI input */}
+          {fromAI && (
+            <div className="inline-flex items-center font-normal space-x-2 px-4 py-2 rounded-full bg-green-50 text-green-700 mb-6 shadow-sm border border-green-100">
+              <FaRobot className="h-4 w-4" />
+              <span className="text-sm font-light">AI-Powered Resume</span>
+            </div>
+          )}
+          
           <div className="inline-flex items-center font-normal space-x-2 px-4 py-2 rounded-full bg-blur mb-6 shadow-sm border border-gray-400/20">
             <FaFileAlt className="h-4 w-4" />
             <span className="text-sm font-light">Templates Selection</span>
@@ -143,8 +170,19 @@ const TemplateSelection = () => {
           </h1>
           
           <p className="text-lg text-gray-600 max-w-3xl mx-auto leading-relaxed">
-            Select a professional template to get started with your ATS-optimized resume
+            {fromAI 
+              ? "We've analyzed your information. Now select a template for your AI-generated resume."
+              : "Select a professional template to get started with your ATS-optimized resume"}
           </p>
+          
+          {/* If from AI, show a notification that their data is ready */}
+          {fromAI && aiData && (
+            <div className="mt-4 inline-block bg-green-50 border border-green-200 rounded-lg px-4 py-2">
+              <p className="text-sm text-green-700">
+                <span className="font-semibold">✓</span> Your AI resume content is ready! Choose a template to continue.
+              </p>
+            </div>
+          )}
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-7xl mx-auto">
